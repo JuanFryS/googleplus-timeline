@@ -35,7 +35,7 @@ Example:
                id="requestFollowing"
                url="https://www.googleapis.com/plus/v1/people/me/people/visible"
                method="GET"
-               headers='{ "Authorization": "Bearer ya29.SgKrPRJHEg5uEzSZ-phz9ANHdvPSEenSLMlPcBWMQC2rG2ed3rsrYrixJ4ua9dw9LDWgTUTM5MM" }'
+               headers='{ "Authorization": "Bearer " }'
                handleAs='json'
                on-response="_responseFollowings"
                >
@@ -43,9 +43,9 @@ Example:
 
     <iron-ajax
                id="requestPosts"
-               url="{{_getRequestPostsURL}}"
+               url="{{requestPostsURL}}"
                method="GET"
-               headers='{ "Authorization": "Bearer ya29.SgKrPRJHEg5uEzSZ-phz9ANHdvPSEenSLMlPcBWMQC2rG2ed3rsrYrixJ4ua9dw9LDWgTUTM5MM" }'
+               headers='{ "Authorization": "Bearer " }'
                handleAs='json'
                on-response="_responsePosts"
                >
@@ -98,9 +98,15 @@ Example:
           type: String,
           computed: "_getRequestHeaders(accessToken)"
         },
+
         following_user_id: {
           type: String,
           value: ""
+        },
+
+        requestPostsURL: {
+          type: String,
+          computed: "_getRequestPostsURL()"
         },
     },
 
@@ -117,9 +123,7 @@ Example:
 
     _responseFollowings: function(event, detail){
       console.log("_responseFollowings");
-      console.log(detail);
-      this.followings = detail.response;
-      for (i=0;i<detail.response.length;i++) {
+      for (i=0;i<detail.response.items.length;i++) {
         this.following_user_id = detail.response.items[i];
         this.$.requestPosts.generateRequest();
       }
