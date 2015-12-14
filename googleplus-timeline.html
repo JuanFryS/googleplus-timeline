@@ -1,0 +1,197 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/paper-header-panel/paper-header-panel.html">
+<link rel="import" href="bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+
+<!--
+An element providing a solution to no problem in particular.
+
+Example:
+
+    <googleplus-timeline></googleplus-timeline>
+
+@group Seed Elements
+@element googleplus-timeline
+@demo demo/index.html
+@hero hero.svg
+-->
+<dom-module id="googleplus-timeline">
+
+  <template>
+    <style>
+      
+    </style>
+
+    <iron-ajax
+               id="requestFollowing"
+               url="https://www.googleapis.com/plus/v1/people/me/people/visible"
+               method="GET"
+               headers='{ "Authorization": "Bearer ya29.SgKrPRJHEg5uEzSZ-phz9ANHdvPSEenSLMlPcBWMQC2rG2ed3rsrYrixJ4ua9dw9LDWgTUTM5MM" }'
+               handleAs='json'
+               on-response="_responseFollowings"
+               >
+    </iron-ajax>
+
+    <iron-ajax
+               id="requestPosts"
+               url="{{_getRequestPostsURL}}"
+               method="GET"
+               headers='{ "Authorization": "Bearer ya29.SgKrPRJHEg5uEzSZ-phz9ANHdvPSEenSLMlPcBWMQC2rG2ed3rsrYrixJ4ua9dw9LDWgTUTM5MM" }'
+               handleAs='json'
+               on-response="_responsePosts"
+               >
+    </iron-ajax>
+
+      <paper-header-panel class="waterfall">
+        <paper-toolbar>
+          <div>GooglePlus Timeline</div>
+        </paper-toolbar>
+      </paper-header-panel>
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'googleplus-timeline',
+
+    properties: {
+      /**
+       * Describes the api-key of the application
+       *
+       * @type {{name: string}}
+       */
+        clientID: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true
+        },
+
+        /**
+       * Describes the api-key of the application
+       *
+       * @type {{name: string}}
+       */
+        accessToken: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true
+        },
+
+        requestFollowingParams: {
+          type: String,
+          computed: "_getRequestFollowingParams(clientID)"
+        },
+
+        requestHeaders: {
+          type: String,
+          computed: "_getRequestHeaders(accessToken)"
+        },
+        following_user_id: {
+          type: String,
+          value: ""
+        },
+    },
+
+    _getRequestFollowingParams: function (apiKey){ 
+      return {key : apiKey};
+    },
+
+    _getRequestHeaders: function(accessToken){
+      var authorization_header = "Bearer " + accessToken
+      console.log("Este es el header: " + "{Authorization:" 
+       +  authorization_header + "}");
+      return {Authorization: authorization_header};
+    },
+
+    _responseFollowings: function(event, detail){
+      console.log("_responseFollowings");
+      console.log(detail);
+      this.followings = detail.response;
+      for (i=0;i<detail.response.length;i++) {
+        this.following_user_id = detail.response.items[i];
+        this.$.requestPosts.generateRequest();
+      }
+    },
+
+    _getRequestPostsURL: function(){
+      return "https://www.googleapis.com/plus/v1/people/" + this.following_user_id + "/activities/"
+    },
+
+    _responsePosts: function(event, detail){
+      console.log("_responsePosts")
+      console.log(detail.response);
+    },
+
+    // Element Lifecycle
+
+    ready: function() {
+      // `ready` is called after all elements have been configured, but
+      // propagates bottom-up. This element's children are ready, but parents
+      // are not.
+      //
+      // This is the point where you should make modifications to the DOM (when
+      // necessary), or kick off any processes the element wants to perform.
+      this.$.requestFollowing.generateRequest();
+    },
+
+    attached: function() {
+      // `attached` fires once the element and its parents have been inserted
+      // into a document.
+      //
+      // This is a good place to perform any work related to your element's
+      // visual state or active behavior (measuring sizes, beginning animations,
+      // loading resources, etc).
+    },
+
+    detached: function() {
+      // The analog to `attached`, `detached` fires when the element has been
+      // removed from a document.
+      //
+      // Use this to clean up anything you did in `attached`.
+    },
+
+    // Element Behavior
+
+    /**
+     * The `googleplus-timeline-lasers` event is fired whenever `fireLasers` is called.
+     *
+     * @event googleplus-timeline-lasers
+     * @detail {{sound: String}}
+     */
+
+    /**
+     * Sometimes it's just nice to say hi.
+     *
+     * @param {string} greeting A positive greeting.
+     * @return {string} The full greeting.
+     */
+    sayHello: function(greeting) {
+      var response = greeting || 'Hello World!';
+      return 'googleplus-timeline says, ' + response;
+    },
+
+    /**
+     * Attempt to destroy this element's enemies with a beam of light!
+     *
+     * Or, at least, dispatch an event in the vain hope that someone else will
+     * do the zapping.
+     */
+    fireLasers: function() {
+      this.fire('googleplus-timeline-lasers', {sound: 'Pew pew!'});
+    }
+
+  });
+
+</script>
