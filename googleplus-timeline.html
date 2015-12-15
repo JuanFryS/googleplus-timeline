@@ -35,7 +35,6 @@ Example:
                id="requestFollowing"
                url="https://www.googleapis.com/plus/v1/people/me/people/visible"
                method="GET"
-               headers='{ "Authorization": "Bearer " }'
                handleAs='json'
                on-response="_responseFollowings"
                >
@@ -43,9 +42,8 @@ Example:
 
     <iron-ajax
                id="requestPosts"
-               url="{{requestPostsURL}}"
+               url="{{request_posts_url}}"
                method="GET"
-               headers='{ "Authorization": "Bearer " }'
                handleAs='json'
                on-response="_responsePosts"
                >
@@ -83,7 +81,7 @@ Example:
        *
        * @type {{name: string}}
        */
-        accessToken: {
+        token: {
           type: String,
           reflectToAttribute: true,
           notify: true
@@ -94,19 +92,14 @@ Example:
           computed: "_getRequestFollowingParams(clientID)"
         },
 
-        requestHeaders: {
-          type: String,
-          computed: "_getRequestHeaders(accessToken)"
-        },
-
         following_user_id: {
           type: String,
           value: ""
         },
 
-        requestPostsURL: {
+        request_posts_url: {
           type: String,
-          computed: "_getRequestPostsURL()"
+          computed: "_getRequestPostsURL(following_user_id)"
         },
     },
 
@@ -114,28 +107,20 @@ Example:
       return {key : apiKey};
     },
 
-    _getRequestHeaders: function(accessToken){
-      var authorization_header = "Bearer " + accessToken
-      console.log("Este es el header: " + "{Authorization:" 
-       +  authorization_header + "}");
-      return {Authorization: authorization_header};
-    },
-
     _responseFollowings: function(event, detail){
-      console.log("_responseFollowings");
+      // console.log(detail.response);
       for (i=0;i<detail.response.items.length;i++) {
-        this.following_user_id = detail.response.items[i];
+        this.following_user_id = detail.response.items[i].id;
         this.$.requestPosts.generateRequest();
       }
     },
 
-    _getRequestPostsURL: function(){
-      return "https://www.googleapis.com/plus/v1/people/" + this.following_user_id + "/activities/"
+    _getRequestPostsURL: function(user_id){
+      return "https://www.googleapis.com/plus/v1/people/" + user_id + "/activities/public"
     },
 
     _responsePosts: function(event, detail){
-      console.log("_responsePosts")
-      console.log(detail.response);
+      // TODO: process data
     },
 
     // Element Lifecycle
@@ -147,7 +132,7 @@ Example:
       //
       // This is the point where you should make modifications to the DOM (when
       // necessary), or kick off any processes the element wants to perform.
-      this.$.requestFollowing.generateRequest();
+      
     },
 
     attached: function() {
@@ -157,6 +142,11 @@ Example:
       // This is a good place to perform any work related to your element's
       // visual state or active behavior (measuring sizes, beginning animations,
       // loading resources, etc).
+      if (this.token) {
+          this.$.requestFollowing.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
+          this.$.requestPosts.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
+          this.$.requestFollowing.generateRequest();
+        }
     },
 
     detached: function() {
