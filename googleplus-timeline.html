@@ -49,10 +49,11 @@ Example:
                >
     </iron-ajax>
 
-      <paper-header-panel class="waterfall">
+      <paper-header-panel mode="waterfall" class="red">
         <paper-toolbar>
           <div>GooglePlus Timeline</div>
         </paper-toolbar>
+        
       </paper-header-panel>
   </template>
 
@@ -65,17 +66,6 @@ Example:
     is: 'googleplus-timeline',
 
     properties: {
-      /**
-       * Describes the api-key of the application
-       *
-       * @type {{name: string}}
-       */
-        clientID: {
-          type: String,
-          reflectToAttribute: true,
-          notify: true
-        },
-
         /**
        * Describes the api-key of the application
        *
@@ -87,9 +77,9 @@ Example:
           notify: true
         },
 
-        requestFollowingParams: {
-          type: String,
-          computed: "_getRequestFollowingParams(clientID)"
+        timeline_posts: {
+          type: Object,
+          value: []
         },
 
         following_user_id: {
@@ -101,10 +91,6 @@ Example:
           type: String,
           computed: "_getRequestPostsURL(following_user_id)"
         },
-    },
-
-    _getRequestFollowingParams: function (apiKey){ 
-      return {key : apiKey};
     },
 
     _responseFollowings: function(event, detail){
@@ -120,7 +106,11 @@ Example:
     },
 
     _responsePosts: function(event, detail){
-      // TODO: process data
+      //Append all user posts to the user timeline 
+      for(i=0; i<detail.response.items.length; i++){
+        this.push('timeline_posts', detail.response.items[i]);
+      }
+      console.log(this.timeline_posts);
     },
 
     // Element Lifecycle
