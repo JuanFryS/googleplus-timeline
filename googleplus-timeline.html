@@ -54,12 +54,13 @@ Example:
     div.paper-header {
       height: 60px;
       font-size: 16px;
+      text-align: center;
       line-height: 60px;
       padding: 0 10px;
       color: white;
       transition: height 0.2s;
-      border-top-left-radius: 8px;
-      border-top-right-radius: 8px;
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
       background-color: var(--google-red-500);
     }
     div.paper-header iron-icon {
@@ -116,7 +117,21 @@ Example:
     }
     .post > .content {
       margin: 10px 3px;
-    }     
+    }
+
+    #stats_count{
+      color: var(--google-grey-700);
+      margin-top: 10px;
+      margin-bottom: 10px;
+      font-weight: bold;
+      font-size: 12px;
+      padding-right: 10px;
+    }
+    .share_icon{
+      width: 20px;
+      height: 20px;
+    }
+
     </style>
 
   <template id="template">
@@ -146,6 +161,7 @@ Example:
         <div class="content">
           <template is="dom-repeat" items="{{timeline_posts}}">
             <paper-material elevation="2" class="postShadow">
+              <!-- Google+ POST -->
               <div class="post">
                 <!-- HEADER: user's avatar, user identifier and time information -->
                 <div class="header horizontal layout">
@@ -154,6 +170,22 @@ Example:
                   </div>
                   <span class="date">{{item.published}}</span>
                 </div>
+                <!-- BODY: text and details about the post itself -->
+                <div class="horizontal layout">
+                  <p class="text">{{item.title}}</p>
+                </div>
+                <!-- FOOTER: info about #+1's and #replies to the post -->
+                <div id="likeContainer">
+
+                  <iron-icon class="share_icon" icon="social:plus-one"></iron-icon> 
+                  <span id="stats_count">{{item.object.plusoners.totalItems}}</span>
+
+                  <iron-icon class="share_icon" icon="reply"></iron-icon> 
+                  <span id="stats_count">{{item.object.replies.totalItems}}</span>
+
+                  <iron-icon class="share_icon" icon="social:share"></iron-icon> 
+                  <span id="stats_count">{{item.object.reshares.totalItems}}</span>
+            </div>
               </div>
             </paper-material>
           </template>
@@ -199,6 +231,10 @@ Example:
 
     _responseFollowings: function(event, detail){
       // console.log(detail.response);
+      //We generate an ajax request to get the post published by the authenticated user
+      this.following_user_id = "me";
+      this.$.requestPosts.generateRequest();
+      //We generate an ajax request for each user that the authenticated user follows 
       for (i=0;i<detail.response.items.length;i++) {
         this.following_user_id = detail.response.items[i].id;
         this.$.requestPosts.generateRequest();
@@ -214,7 +250,8 @@ Example:
       for(i=0; i<detail.response.items.length; i++){
         this.push('timeline_posts', detail.response.items[i]);
       }
-      // console.log(this.timeline_posts)
+      console.log(this.timeline_posts[1])
+      // console.log(this.timeline_posts[1].replies.totalItems)
     },
 
     // Element Lifecycle
