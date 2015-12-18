@@ -128,7 +128,10 @@ Example:
       width: 15px;
       height: 15px;
     }
-
+    #likeContainer span {
+      vertical-align: -1px;
+      margin-left: -5px;
+    }
     </style>
 
   <template id="template">
@@ -156,7 +159,7 @@ Example:
         </div>
 
         <div class="content">
-          <template is="dom-repeat" items="{{timeline_posts}}" sort="_sortPosts">
+          <template is="dom-repeat" items="{{timeline_posts}}" sort="_sortPosts" >
             <paper-material elevation="2" class="postShadow">
               <!-- Google+ POST -->
               <div class="post">
@@ -224,6 +227,10 @@ Example:
           type: String,
           computed: "_getRequestPostsURL(following_user_id)"
         },
+        contador: {
+          type: Number,
+          value: 0
+        }
     },
 
     _responseFollowings: function(event, detail){
@@ -236,7 +243,6 @@ Example:
         this.$.requestPosts.generateRequest();
 
       }
-      console.log(this.timeline_posts.length)
     },
 
     _getRequestPostsURL: function(user_id){
@@ -361,8 +367,11 @@ Example:
     },
 
 
-    _sortPosts: function(){
-
+    _sortPosts: function(post1, post2) {
+      if (post1.published == post2.published)
+        return 0;
+      else
+        return post1.published > post2.published ? -1 : 1;
     }
 
   });
