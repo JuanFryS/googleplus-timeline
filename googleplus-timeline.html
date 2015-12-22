@@ -180,10 +180,37 @@ Example:
 
 
                 <!-- BODY: text and details about the post itself -->
-                <template is="dom-if" if="_exist(item.object.content)">
+                  <!-- post content -->
                   <div class="text" inner-h-t-m-l="{{item.object.content}}"></div>
-                </template>
 
+                  <!-- post attachments -->
+                    <template is="dom-if" if="{{item.object.attachments}}">
+                    <p>  Video: {{_hasAttachment(item,'video')}}
+                    Photo: {{_hasAttachment(item,'photo')}}
+                    Article: {{_hasAttachment(item,'article')}}
+                    Album: {{_hasAttachment(item,'album')}}</p>
+
+                    <!-- post video attachment (if any) -->
+                    <template is="dom-if" if="{{_hasAttachment(item,'video')}}">
+                      
+                    </template>
+
+                    <!-- post photo attachment (if any) -->
+                    <template is="dom-if" if="{{_hasAttachment(item,'photo')}}">
+                      
+                    </template>
+
+                    <!-- Link/article attachment (if any) -->
+                    <template is="dom-if" if="{{_hasAttachment(item,'article')}}">
+                      <a href="{{item.object.attachments[0].url}}" target="_blank" >
+                        <img class="photo-source" src="{{item.object.attachments[0].image.url}}"></a>
+                    </template>
+                    
+                    <!-- Album attachment (if any) -->
+                    <template is="dom-if" if="{{_hasAttachment(item,'album')}}">
+                      
+                    </template>
+                  </template>
                 <!-- FOOTER: info about #+1's and #replies to the post -->
                 <div id="likeContainer">
 
@@ -385,15 +412,15 @@ Example:
         return post1.published > post2.published ? -1 : 1;
     },
 
-    _exist: function(element){
-      console.log(element);
-      if (element!=null){
-        console.log("existo!!");
-        return true;
-      }else
-        return false;
-    }
+    // Auxiliar functions for dom-if conditions
 
+    _hasAttachment: function(item, attachment){
+      // if (item.object.attachments[0].objectType === "article"){
+      //   console.log("enlace: " + item.object.attachments[0].url);
+      //   console.log("Tumbnail: " + item.object.attachments[0].image.url);
+      // }
+      return item.object.attachments[0].objectType === attachment;
+    },
   });
 
 </script>
