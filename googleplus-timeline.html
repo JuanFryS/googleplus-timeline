@@ -36,15 +36,15 @@ Example:
     <style is="custom-style">
     :host {
       display: inline-block;
-      --github-events-width: 450px;
-      --github-events-height: 450px;
+      --google-events-width: 450px;
+      --google-events-height: 450px;
       font-family: helvetica, arial, nimbussansl, liberationsans, freesans, clean, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
       color:#2e2e2e;
     }
 
     paper-header-panel {
-      width: var(--github-events-width);
-      height: var(--github-events-height);
+      width: var(--google-events-width);
+      height: var(--google-events-height);
       @apply(--shadow-elevation-3dp);
       border-radius: 8px;
     }
@@ -182,32 +182,75 @@ Example:
                 <!-- BODY: text and details about the post itself -->
                   <!-- post content -->
                   <div class="text" inner-h-t-m-l="{{item.object.content}}"></div>
-
                   <!-- post attachments -->
-                    <template is="dom-if" if="{{item.object.attachments}}">
-                    <p>  Video: {{_hasAttachment(item,'video')}}
+                  <template is="dom-if" if="{{item.object.attachments}}">
+                    <p>  
+                    Video: {{_hasAttachment(item,'video')}}
                     Photo: {{_hasAttachment(item,'photo')}}
                     Article: {{_hasAttachment(item,'article')}}
                     Album: {{_hasAttachment(item,'album')}}</p>
 
                     <!-- post video attachment (if any) -->
                     <template is="dom-if" if="{{_hasAttachment(item,'video')}}">
-                      
+                      <iframe id="video" width="346" height="195" frameBorder="0" src="{{item.object.attachments.0.embed.url}}">
+                      </iframe>                 
                     </template>
 
                     <!-- post photo attachment (if any) -->
                     <template is="dom-if" if="{{_hasAttachment(item,'photo')}}">
-                      
+                      <p id="photo_title"> {{item.object.attachments.0.displayName}} </p>
+                      <a href="{{item.object.attachments.0.url}}" target="_blank" >
+                        <img src="{{item.object.attachments.0.image.url}}">
+                      </a>
                     </template>
 
                     <!-- Link/article attachment (if any) -->
                     <template is="dom-if" if="{{_hasAttachment(item,'article')}}">
-                      <a href="{{item.object.attachments[0].url}}" target="_blank" >
-                        <img class="photo-source" src="{{item.object.attachments[0].image.url}}"></a>
+                      <a href="{{item.object.attachments.0.url}}" target="_blank" >
+                        <template is="dom-if" if="{{item.object.attachments.0.image.url}}">
+                          <img class="attached_photo" src="{{item.object.attachments.0.image.url}}">
+                        </template>
+                        <p id="article_title"> {{item.object.attachments.0.displayName}} </p>
+                      </a>
+                      <p id="article_subtitle"> {{item.object.attachments.0.content}} </p>
                     </template>
-                    
+
                     <!-- Album attachment (if any) -->
                     <template is="dom-if" if="{{_hasAttachment(item,'album')}}">
+                      <!-- TODO -->
+                        <a href="{{item.object.attachments.0.url}}"><p id="album-title">{{item.object.attachments.0.displayName}}</p></a>
+                        <!-- Shows up to 4 captions of the album -->
+                        <template is="dom-if" if="{{item.object.attachments.0.thumbnails.0.image.url}}">
+                          <a href="{{item.object.attachments.0.thumbnails.0.url}}">
+                            <img src="{{item.object.attachments.0.thumbnails.0.image.url}}" 
+                            height="{{item.object.attachments.0.thumbnails.0.image.height}}" 
+                            width="{{item.object.attachments.0.thumbnails.0.image.width}}">
+                          </a>
+                        </template>
+                        
+                        <template is="dom-if" if="{{item.object.attachments.0.thumbnails.1.image.url}}">
+                          <a href="{{item.object.attachments.0.thumbnails.1.url}}">
+                            <img src="{{item.object.attachments.0.thumbnails.1.image.url}}" 
+                            height="{{item.object.attachments.0.thumbnails.1.image.height}}"
+                            width="{{item.object.attachments.0.thumbnails.1.image.width}}">
+                          </a>
+                        </template>
+
+                        <template is="dom-if" if="{{item.object.attachments.0.thumbnails.2.image.url}}">
+                          <a href="{{item.object.attachments.0.thumbnails.2.url}}">
+                            <img src="{{item.object.attachments.0.thumbnails.2.image.url}}" 
+                            height="{{item.object.attachments.0.thumbnails.2.image.height}}"
+                            width="{{item.object.attachments.0.thumbnails.2.image.width}}">
+                          </a>
+                        </template>
+                        
+                        <template is="dom-if" if="{{item.object.attachments.0.thumbnails.3.image.url}}">
+                          <a href="{{item.object.attachments.0.thumbnails.3.url}}">
+                            <img src="{{item.object.attachments.0.thumbnails.3.image.url}}" 
+                            height="{{item.object.attachments.0.thumbnails.3.image.height}}"
+                            width="{{item.object.attachments.0.thumbnails.3.image.width}}">
+                          </a>
+                        </template>
                       
                     </template>
                   </template>
@@ -278,7 +321,6 @@ Example:
       for (i=0;i<detail.response.items.length;i++) {
         this.following_user_id = detail.response.items[i].id;
         this.$.requestPosts.generateRequest();
-
       }
     },
 
@@ -416,11 +458,12 @@ Example:
 
     _hasAttachment: function(item, attachment){
       // if (item.object.attachments[0].objectType === "article"){
-      //   console.log("enlace: " + item.object.attachments[0].url);
-      //   console.log("Tumbnail: " + item.object.attachments[0].image.url);
+      //   console.log("Titular " + item.object.attachments[0].displayName);
+      //   console.log("Subtitulo " + item.object.attachments[0].content);
       // }
       return item.object.attachments[0].objectType === attachment;
     },
+
   });
 
 </script>
