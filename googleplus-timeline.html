@@ -73,12 +73,16 @@ Example:
       min-height: 100px;
       padding: 8px;
       border-radius: 3px;
-      font-size:14px;
+      font-size: 13px;
       background: rgb(238,238,238);
       background: -moz-linear-gradient(top,  rgba(238,238,238,1) 0%, rgba(233,233,233,1) 52%, rgba(238,238,238,1) 100%);
       background: -webkit-linear-gradient(top,  rgba(238,238,238,1) 0%,rgba(233,233,233,1) 52%,rgba(238,238,238,1) 100%);
       background: linear-gradient(to bottom,  rgba(238,238,238,1) 0%,rgba(233,233,233,1) 52%,rgba(238,238,238,1) 100%);
       filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#eeeeee',GradientType=0 );
+    }
+
+    .post .content {
+      margin: 10px 3px;
     }
     .postShadow{
       margin: 15px 8px;
@@ -90,8 +94,8 @@ Example:
       margin:0;
       font-size: 14px;
     }
-    .header .name {
-      margin: auto 12px;      
+    .header .header_text {
+      margin: auto 5px;      
     }
     .header iron-icon {
       width: 40px;
@@ -101,21 +105,70 @@ Example:
       border-radius: 50%;
     }
     .header .date {
-      font-size:11px;
       padding-top: 10px;
     }
-    a {
+
+    .header_text{
       text-decoration: none;
-      /*color: #1e71bf;*/
       color: black;
       font-weight: bold;
     }
-    a:hover {
-      color: var(--google-blue-300);
+    
+    a:hover{
+      color: #1976D2;
     }
-    .post > .content {
-      margin: 10px 3px;
+    
+    /* Post content styles */
+    .text{
+      padding: 15px;
     }
+    .flex{
+      padding-top: 10px;
+    }
+    #video{
+      padding-bottom: 15px;
+    }
+    .attached_photo{
+      width: 380px;
+      height: auto;
+      padding: 15px;
+    }
+
+    #article_title{
+      font-weight: normal;
+      font-size: 16px;
+      padding-left: 15px;
+      text-decoration: none;
+      color: #404040;
+    }
+    #article_title:hover{
+      color: #1976D2;
+      text-decoration: underline;
+    }
+    #original_post_author{
+      font-weight: bold;
+    }
+
+    .post:hover #article_title{
+      color: #1976D2;
+    }
+    
+    .post:hover #original-post-link{
+      color: #1976D2;
+    }
+
+    #share_details{
+      padding-left: 15px;
+    }
+    #share_details a{
+      color: black;
+      text-decoration: none;
+    }
+    #share_details a:hover{
+      text-decoration: underline;
+    }
+
+    /* Post Footer styles */
     #stats_count{
       color: var(--google-grey-700);
       /*margin-top: 10px;
@@ -134,23 +187,6 @@ Example:
       vertical-align: -1px;
       margin-left: -5px;
       margin-top: 20px;  
-    }
-    .text{
-      padding: 15px;
-    }
-    .flex{
-      padding-top: 10px;
-    }
-    .attached_photo{
-      width: 380px;
-      height: auto;
-    }
-    #article_title{
-      font-weight: normal;
-      color: var(--google-grey-900);
-    }
-    #article_title:hover{
-      color: var(--google-blue-300);
     }
     </style>
 
@@ -185,18 +221,20 @@ Example:
               <div class="post">
                 <!-- HEADER: user's avatar, user identifier and time information -->
                 <div class="header horizontal layout">
-                  <iron-icon src="{{item.actor.image.url}}" class="userAvatarPost"></iron-icon>
-                  <div class="flex"><a href="{{item.actor.url}}" target="_blank" class="name"> {{item.actor.displayName}}</a>
+                  <a href="{{item.actor.url}}" target="_blank" class="header_text"><iron-icon src="{{item.actor.image.url}}" class="userAvatarPost"></iron-icon></a>
+                  <div class="flex"><a href="{{item.actor.url}}" target="_blank" class="header_text"> {{item.actor.displayName}}</a>
                   </div>
-                  <span class="date"><a href="{{item.url}}" target="_blank" class="name"> {{item.published_pretty}}</a></span>
+                  <span class="date"><a href="{{item.url}}" target="_blank" class="header_text"> {{item.published_pretty}}</a></span>
                 </div>
 
 
                 <!-- BODY: text and details about the post itself -->
                   <!-- post content -->
                   <template is="dom-if" if="{{_isSharedPost(item)}}">
-                    <a href="{{item.object.actor.url}}" target="_blank">{{item.object.actor.displayName}}</a> 
-                    <a href="{{item.url}}" target="_blank"> has shared first:</a> 
+                    <span id="share_details">
+                      <a href="{{item.object.actor.url}}" target="_blank" id="original_post_author">{{item.object.actor.displayName}}</a> 
+                      <a href="{{item.url}}" target="_blank" id="original-post-link"> has shared first:</a> 
+                    </span>
                   </template>
 
                   <div class="text" inner-h-t-m-l="{{item.object.content}}"></div>
@@ -230,14 +268,14 @@ Example:
                         <template is="dom-if" if="{{item.object.attachments.0.image.url}}">
                           <img class="attached_photo" src="{{item.object.attachments.0.image.url}}">
                         </template>
-                        <p id="article_title"> {{item.object.attachments.0.displayName}} </p>
+                        <p id="article_title" class="post-link"> {{item.object.attachments.0.displayName}} </p>
                       </a>
                       <p id="article_subtitle"> {{item.object.attachments.0.content}} </p>
                     </template>
 
                     <!-- Album attachment (if any) -->
                     <template is="dom-if" if="{{_hasAttachment(item,'album')}}">
-                      <!-- TODO -->
+                      
                         <a href="{{item.object.attachments.0.url}}"><p id="album-title">{{item.object.attachments.0.displayName}}</p></a>
                         <!-- Shows up to 4 captions of the album -->
                         <template is="dom-if" if="{{item.object.attachments.0.thumbnails.0.image.url}}">
