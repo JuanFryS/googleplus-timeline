@@ -106,38 +106,51 @@ Example:
     }
     a {
       text-decoration: none;
-      color: #1e71bf;
+      /*color: #1e71bf;*/
+      color: black;
       font-weight: bold;
     }
     a:hover {
-      text-decoration: underline;
+      color: var(--google-blue-300);
     }
     .post > .content {
       margin: 10px 3px;
     }
-
     #stats_count{
       color: var(--google-grey-700);
       /*margin-top: 10px;
       margin-bottom: 10px;*/
       font-weight: bold;
-      font-size: 14px;
+      font-size: 15px;
       padding-right: 10px;
+      padding-left: 3px;
     }
     .share_icon{
       width: 15px;
       height: 15px;
+      padding-left: 10px;
     }
     #likeContainer span {
       vertical-align: -1px;
       margin-left: -5px;
+      margin-top: 20px;  
     }
-
     .text{
-      padding: 10px;
+      padding: 15px;
     }
     .flex{
       padding-top: 10px;
+    }
+    .attached_photo{
+      width: 380px;
+      height: auto;
+    }
+    #article_title{
+      font-weight: normal;
+      color: var(--google-grey-900);
+    }
+    #article_title:hover{
+      color: var(--google-blue-300);
     }
     </style>
 
@@ -181,6 +194,11 @@ Example:
 
                 <!-- BODY: text and details about the post itself -->
                   <!-- post content -->
+                  <template is="dom-if" if="{{_isSharedPost(item)}}">
+                    <a href="{{item.object.actor.url}}" target="_blank">{{item.object.actor.displayName}}</a> 
+                    <a href="{{item.url}}" target="_blank"> has shared first:</a> 
+                  </template>
+
                   <div class="text" inner-h-t-m-l="{{item.object.content}}"></div>
                   <!-- post attachments -->
                   <template is="dom-if" if="{{item.object.attachments}}">
@@ -191,17 +209,19 @@ Example:
                     Album: {{_hasAttachment(item,'album')}}</p>
 
                     <!-- post video attachment (if any) -->
-                    <template is="dom-if" if="{{_hasAttachment(item,'video')}}">
-                      <iframe id="video" width="346" height="195" frameBorder="0" src="{{item.object.attachments.0.embed.url}}">
+                    <template is="dom-if" if="{{_hasVideoAttachment(item)}}">
+                      <iframe id="video" type="text/html" width="380" height="285" frameBorder="0"
+                       src="{{item.object.attachments.0.embed.url}}">
                       </iframe>                 
                     </template>
 
                     <!-- post photo attachment (if any) -->
                     <template is="dom-if" if="{{_hasAttachment(item,'photo')}}">
-                      <p id="photo_title"> {{item.object.attachments.0.displayName}} </p>
-                      <a href="{{item.object.attachments.0.url}}" target="_blank" >
-                        <img src="{{item.object.attachments.0.image.url}}">
-                      </a>
+                      <span class="attached_photo_section">
+                        <a href="{{item.object.attachments.0.url}}" target="_blank" >
+                          <img class="attached_photo" src="{{item.object.attachments.0.image.url}}">
+                        </a>
+                      </span>
                     </template>
 
                     <!-- Link/article attachment (if any) -->
@@ -336,6 +356,7 @@ Example:
         this._changeTime(this.timeline_posts.length - 1);
         // console.log(this.timeline_posts[i]);
       }
+            
     },
 
     // Element Lifecycle
@@ -347,7 +368,6 @@ Example:
       //
       // This is the point where you should make modifications to the DOM (when
       // necessary), or kick off any processes the element wants to perform.
-      
     },
 
     attached: function() {
@@ -456,14 +476,22 @@ Example:
 
     // Auxiliar functions for dom-if conditions
 
-    _hasAttachment: function(item, attachment){
+    _hasAttachment: function(item, attachmentType){
       // if (item.object.attachments[0].objectType === "article"){
       //   console.log("Titular " + item.object.attachments[0].displayName);
       //   console.log("Subtitulo " + item.object.attachments[0].content);
       // }
-      return item.object.attachments[0].objectType === attachment;
+      return item.object.attachments[0].objectType === attachmentType;
     },
 
+    _hasVideoAttachment: function(item){
+      return item.object.attachments[0].objectType === 'video'
+      && item.object.attachments[0].hasOwnProperty('embed');
+    },
+
+    _isSharedPost: function(item){
+      return item.verb === "share";
+    }
   });
 
 </script>
