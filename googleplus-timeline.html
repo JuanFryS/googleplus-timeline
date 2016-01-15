@@ -113,6 +113,12 @@ Example:
       color: black;
       font-weight: bold;
     }
+
+    a{
+      text-decoration: none;
+      color: black;
+      font-weight: bold;
+    }
     
     a:hover{
       color: #1976D2;
@@ -136,11 +142,22 @@ Example:
 
     #article_title{
       font-weight: normal;
+      margin-top: 0px;
       font-size: 16px;
       padding-left: 15px;
       text-decoration: none;
       color: #404040;
     }
+    #article_subtitle{
+      font-weight: normal;
+      margin-top: 0px;
+      margin-bottom: 0px;
+      font-size: 13px;
+      padding-left: 15px;
+      text-decoration: none;
+      color: #757575; 
+    }
+
     #article_title:hover{
       color: #1976D2;
       text-decoration: underline;
@@ -157,6 +174,9 @@ Example:
       color: #1976D2;
     }
 
+    #album-title{
+      font-size: 14px;
+    }
     #share_details{
       padding-left: 15px;
     }
@@ -276,7 +296,7 @@ Example:
                     <!-- Album attachment (if any) -->
                     <template is="dom-if" if="{{_hasAttachment(item,'album')}}">
                       
-                        <a href="{{item.object.attachments.0.url}}"><p id="album-title">{{item.object.attachments.0.displayName}}</p></a>
+                        <a href="{{item.object.attachments.0.url}}" id="album-title">{{item.object.attachments.0.displayName}}</a>
                         <!-- Shows up to 4 captions of the album -->
                         <template is="dom-if" if="{{item.object.attachments.0.thumbnails.0.image.url}}">
                           <a href="{{item.object.attachments.0.thumbnails.0.url}}">
