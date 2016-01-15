@@ -100,6 +100,7 @@ Example:
     .header iron-icon {
       width: 40px;
       height: 40px;
+      margin-bottom: 10px;
     }
     .header iron-icon /deep/ img {
       border-radius: 50%;
@@ -143,6 +144,7 @@ Example:
     #article_title{
       font-weight: normal;
       margin-top: 0px;
+      margin-bottom: 8px;
       font-size: 16px;
       padding-left: 15px;
       text-decoration: none;
@@ -151,7 +153,7 @@ Example:
     #article_subtitle{
       font-weight: normal;
       margin-top: 0px;
-      margin-bottom: 0px;
+      margin-bottom: 10px;
       font-size: 13px;
       padding-left: 15px;
       text-decoration: none;
@@ -260,12 +262,12 @@ Example:
                   <div class="text" inner-h-t-m-l="{{item.object.content}}"></div>
                   <!-- post attachments -->
                   <template is="dom-if" if="{{item.object.attachments}}">
-                    <p>  
+                    <!-- <p>  
                     Video: {{_hasAttachment(item,'video')}}
                     Photo: {{_hasAttachment(item,'photo')}}
                     Article: {{_hasAttachment(item,'article')}}
                     Album: {{_hasAttachment(item,'album')}}</p>
-
+ -->
                     <!-- post video attachment (if any) -->
                     <template is="dom-if" if="{{_hasVideoAttachment(item)}}">
                       <iframe id="video" type="text/html" width="380" height="285" frameBorder="0"
@@ -295,41 +297,39 @@ Example:
 
                     <!-- Album attachment (if any) -->
                     <template is="dom-if" if="{{_hasAttachment(item,'album')}}">
+                      <a href="{{item.object.attachments.0.url}}" id="album-title">{{item.object.attachments.0.displayName}}</a>
+                      <!-- Shows up to 4 captions of the album -->
+                      <template is="dom-if" if="{{item.object.attachments.0.thumbnails.0.image.url}}">
+                        <a href="{{item.object.attachments.0.thumbnails.0.url}}">
+                          <img src="{{item.object.attachments.0.thumbnails.0.image.url}}" 
+                          height="{{item.object.attachments.0.thumbnails.0.image.height}}" 
+                          width="{{item.object.attachments.0.thumbnails.0.image.width}}">
+                        </a>
+                      </template>
                       
-                        <a href="{{item.object.attachments.0.url}}" id="album-title">{{item.object.attachments.0.displayName}}</a>
-                        <!-- Shows up to 4 captions of the album -->
-                        <template is="dom-if" if="{{item.object.attachments.0.thumbnails.0.image.url}}">
-                          <a href="{{item.object.attachments.0.thumbnails.0.url}}">
-                            <img src="{{item.object.attachments.0.thumbnails.0.image.url}}" 
-                            height="{{item.object.attachments.0.thumbnails.0.image.height}}" 
-                            width="{{item.object.attachments.0.thumbnails.0.image.width}}">
-                          </a>
-                        </template>
-                        
-                        <template is="dom-if" if="{{item.object.attachments.0.thumbnails.1.image.url}}">
-                          <a href="{{item.object.attachments.0.thumbnails.1.url}}">
-                            <img src="{{item.object.attachments.0.thumbnails.1.image.url}}" 
-                            height="{{item.object.attachments.0.thumbnails.1.image.height}}"
-                            width="{{item.object.attachments.0.thumbnails.1.image.width}}">
-                          </a>
-                        </template>
+                      <template is="dom-if" if="{{item.object.attachments.0.thumbnails.1.image.url}}">
+                        <a href="{{item.object.attachments.0.thumbnails.1.url}}">
+                          <img src="{{item.object.attachments.0.thumbnails.1.image.url}}" 
+                          height="{{item.object.attachments.0.thumbnails.1.image.height}}"
+                          width="{{item.object.attachments.0.thumbnails.1.image.width}}">
+                        </a>
+                      </template>
 
-                        <template is="dom-if" if="{{item.object.attachments.0.thumbnails.2.image.url}}">
-                          <a href="{{item.object.attachments.0.thumbnails.2.url}}">
-                            <img src="{{item.object.attachments.0.thumbnails.2.image.url}}" 
-                            height="{{item.object.attachments.0.thumbnails.2.image.height}}"
-                            width="{{item.object.attachments.0.thumbnails.2.image.width}}">
-                          </a>
-                        </template>
-                        
-                        <template is="dom-if" if="{{item.object.attachments.0.thumbnails.3.image.url}}">
-                          <a href="{{item.object.attachments.0.thumbnails.3.url}}">
-                            <img src="{{item.object.attachments.0.thumbnails.3.image.url}}" 
-                            height="{{item.object.attachments.0.thumbnails.3.image.height}}"
-                            width="{{item.object.attachments.0.thumbnails.3.image.width}}">
-                          </a>
-                        </template>
+                      <template is="dom-if" if="{{item.object.attachments.0.thumbnails.2.image.url}}">
+                        <a href="{{item.object.attachments.0.thumbnails.2.url}}">
+                          <img src="{{item.object.attachments.0.thumbnails.2.image.url}}" 
+                          height="{{item.object.attachments.0.thumbnails.2.image.height}}"
+                          width="{{item.object.attachments.0.thumbnails.2.image.width}}">
+                        </a>
+                      </template>
                       
+                      <template is="dom-if" if="{{item.object.attachments.0.thumbnails.3.image.url}}">
+                        <a href="{{item.object.attachments.0.thumbnails.3.url}}">
+                          <img src="{{item.object.attachments.0.thumbnails.3.image.url}}" 
+                          height="{{item.object.attachments.0.thumbnails.3.image.height}}"
+                          width="{{item.object.attachments.0.thumbnails.3.image.width}}">
+                        </a>
+                      </template>
                     </template>
                   </template>
                 <!-- FOOTER: info about #+1's and #replies to the post -->
