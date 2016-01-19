@@ -18,7 +18,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="bower_components/paper-styles/paper-styles.html">
 <link rel="import" href="bower_components/paper-material/paper-material.html">
 <link rel="import" href="bower_components/paper-button/paper-button.html">
-
+<link rel="import" href="bower_components/iron-image/iron-image.html">
 <!--
 An element providing a solution to no problem in particular.
 
@@ -129,9 +129,6 @@ Example:
     .text{
       padding: 15px;
     }
-    .flex{
-      padding-top: 10px;
-    }
     #video{
       padding-bottom: 15px;
     }
@@ -142,6 +139,7 @@ Example:
     }
 
     #article_title{
+      font: normal 13px Roboto,arial,sans-serif;
       font-weight: normal;
       margin-top: 0px;
       margin-bottom: 8px;
@@ -151,6 +149,7 @@ Example:
       color: #404040;
     }
     #article_subtitle{
+      font: normal 12px Roboto,arial,sans-serif;
       font-weight: normal;
       margin-top: 0px;
       margin-bottom: 10px;
@@ -297,39 +296,68 @@ Example:
 
                     <!-- Album attachment (if any) -->
                     <template is="dom-if" if="{{_hasAttachment(item,'album')}}">
-                      <a href="{{item.object.attachments.0.url}}" id="album-title">{{item.object.attachments.0.displayName}}</a>
+                      <!-- <a href="{{item.object.attachments.0.url}}" id="album-title">{{item.object.attachments.0.displayName}}</a> -->
                       <!-- Shows up to 4 captions of the album -->
-                      <template is="dom-if" if="{{item.object.attachments.0.thumbnails.0.image.url}}">
-                        <a href="{{item.object.attachments.0.thumbnails.0.url}}">
-                          <img src="{{item.object.attachments.0.thumbnails.0.image.url}}" 
-                          height="{{item.object.attachments.0.thumbnails.0.image.height}}" 
-                          width="{{item.object.attachments.0.thumbnails.0.image.width}}">
-                        </a>
-                      </template>
                       
-                      <template is="dom-if" if="{{item.object.attachments.0.thumbnails.1.image.url}}">
-                        <a href="{{item.object.attachments.0.thumbnails.1.url}}">
-                          <img src="{{item.object.attachments.0.thumbnails.1.image.url}}" 
-                          height="{{item.object.attachments.0.thumbnails.1.image.height}}"
-                          width="{{item.object.attachments.0.thumbnails.1.image.width}}">
-                        </a>
-                      </template>
+                      <!-- Main photo -->
+                      <div class="horizontal layout wrap" style="width: 400px">
+                        <div class="flex">
+                          <div>
+                            <template is="dom-if" if="{{item.object.attachments.0.thumbnails.0.image.url}}">
+                              <!-- <a href="{{item.object.attachments.0.thumbnails.0.url}}"> -->
+                              <iron-image src="{{item.object.attachments.0.thumbnails.0.image.url}}" 
+                              width="{{item.object.attachments.0.thumbnails.0.image.width}}" 
+                              height="{{item.object.attachments.0.thumbnails.0.image.height}}"
+                              sizing="contain"
+                              >
+                              </iron-image>
+                              <!-- </a> -->
+                            </template>
+                          </div>
+                        </div>
+                        <!-- Secondary photo(s) -->
+                        <div class="vertical layout end-justified">
+                          <!-- Second photo (if any) -->
+                          <div>
+                            <template is="dom-if" if="{{item.object.attachments.0.thumbnails.1.image.url}}">
+                              <!-- <a href="{{item.object.attachments.0.thumbnails.1.url}}"> -->
+                                <iron-image src="{{item.object.attachments.0.thumbnails.1.image.url}}" 
+                                width="{{item.object.attachments.0.thumbnails.1.image.width}}" 
+                                height="{{item.object.attachments.0.thumbnails.1.image.height}}"
+                                sizing="contain">
+                                </iron-image>
+                              <!-- </a> -->
+                            </template>
+                          </div>
 
-                      <template is="dom-if" if="{{item.object.attachments.0.thumbnails.2.image.url}}">
-                        <a href="{{item.object.attachments.0.thumbnails.2.url}}">
-                          <img src="{{item.object.attachments.0.thumbnails.2.image.url}}" 
-                          height="{{item.object.attachments.0.thumbnails.2.image.height}}"
-                          width="{{item.object.attachments.0.thumbnails.2.image.width}}">
-                        </a>
-                      </template>
-                      
-                      <template is="dom-if" if="{{item.object.attachments.0.thumbnails.3.image.url}}">
-                        <a href="{{item.object.attachments.0.thumbnails.3.url}}">
-                          <img src="{{item.object.attachments.0.thumbnails.3.image.url}}" 
-                          height="{{item.object.attachments.0.thumbnails.3.image.height}}"
-                          width="{{item.object.attachments.0.thumbnails.3.image.width}}">
-                        </a>
-                      </template>
+                          <!-- Third photo (if any) -->
+                          <div> 
+                            <template is="dom-if" if="{{item.object.attachments.0.thumbnails.2.image.url}}">
+                              <!-- <a href="{{item.object.attachments.0.thumbnails.2.url}}"> -->
+                                <iron-image src="{{item.object.attachments.0.thumbnails.2.image.url}}"
+                                width="{{item.object.attachments.0.thumbnails.2.image.width}}" 
+                                height="{{item.object.attachments.0.thumbnails.2.image.height}}"
+                                sizing="contain">
+                              </iron-image>
+                              <!-- </a> -->
+                          </template>
+                          </div>
+
+                          <!-- Fourth photo (if any) -->
+                          <div> 
+                            <template is="dom-if" if="{{item.object.attachments.0.thumbnails.3.image.url}}">
+                              <!-- <a href="{{item.object.attachments.0.thumbnails.3.url}}"> -->
+                                <iron-image src="{{item.object.attachments.0.thumbnails.3.image.url}}"
+                                width="{{item.object.attachments.0.thumbnails.3.image.width}}" 
+                                height="{{item.object.attachments.0.thumbnails.3.image.height}}"
+                                sizing="contain">
+                              </iron-image>
+                              <!-- </a> -->
+                            </template>
+                          </div>
+                        </div>
+                      </div>
+
                     </template>
                   </template>
                 <!-- FOOTER: info about #+1's and #replies to the post -->
@@ -396,10 +424,10 @@ Example:
       this.following_user_id = "me";
       this.$.requestPosts.generateRequest();
       //We generate an ajax request for each user that the authenticated user follows 
-      for (i=0;i<detail.response.items.length;i++) {
-        this.following_user_id = detail.response.items[i].id;
-        this.$.requestPosts.generateRequest();
-      }
+      // for (i=0;i<detail.response.items.length;i++) {
+      //   this.following_user_id = detail.response.items[i].id;
+      //   this.$.requestPosts.generateRequest();
+      // }
     },
 
     _getRequestPostsURL: function(user_id){
