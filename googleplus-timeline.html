@@ -209,6 +209,55 @@ Example:
       margin-left: -5px;
       margin-top: 20px;  
     }
+
+    /* Album caption styles */
+    .imgContainer{
+        margin: 0px;
+        padding: 0px;
+        border: 0px;
+    }
+    .album_caption1{
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      height: 262px;
+      width: 262px;
+      border: 1px;
+      border-style: solid;
+      color: white;
+      font-weight: bold;
+    }
+    .album_caption2{
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      height: 86px;
+      width: 86px;
+      margin: 0px;
+      border: 1px;
+      border-style:solid;
+      color: white;
+    }
+    .album_caption3{
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      height: 86px;
+      width: 86px;
+      margin: 0px;
+      border: 1px;
+      border-style: solid;
+      color: white;
+    }
+    .album_caption4{
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      height: 86px;
+      width: 86px;
+      color: white;
+      margin: 0px;
+      border: 2px;
+      border: 1px;
+      border-style: solid;
+      color: white;
+    }
     </style>
 
   <template id="template">
@@ -298,66 +347,41 @@ Example:
                     <template is="dom-if" if="{{_hasAttachment(item,'album')}}">
                       <!-- <a href="{{item.object.attachments.0.url}}" id="album-title">{{item.object.attachments.0.displayName}}</a> -->
                       <!-- Shows up to 4 captions of the album -->
-                      
                       <!-- Main photo -->
-                      <div class="horizontal layout wrap" style="width: 400px">
-                        <div class="flex">
-                          <div>
-                            <template is="dom-if" if="{{item.object.attachments.0.thumbnails.0.image.url}}">
-                              <!-- <a href="{{item.object.attachments.0.thumbnails.0.url}}"> -->
-                              <iron-image src="{{item.object.attachments.0.thumbnails.0.image.url}}" 
-                              width="{{item.object.attachments.0.thumbnails.0.image.width}}" 
-                              height="{{item.object.attachments.0.thumbnails.0.image.height}}"
-                              sizing="contain"
-                              >
-                              </iron-image>
-                              <!-- </a> -->
-                            </template>
+    
+                    <!-- Main photo -->
+                    <a href="{{item.object.attachments.0.url}}" id="album-title">{{item.object.attachments.0.displayName}}</a>
+                    <div class="horizontal layout wrap" style="width:380px">
+                        <a href="{{item.object.attachments.0.thumbnails.0.url}}">
+                          <div class=" album_caption1" 
+                          style$="background-image: url('{{item.object.attachments.0.thumbnails.0.image.url}}');">
                           </div>
-                        </div>
-                        <!-- Secondary photo(s) -->
-                        <div class="vertical layout end-justified">
-                          <!-- Second photo (if any) -->
-                          <div>
-                            <template is="dom-if" if="{{item.object.attachments.0.thumbnails.1.image.url}}">
-                              <!-- <a href="{{item.object.attachments.0.thumbnails.1.url}}"> -->
-                                <iron-image src="{{item.object.attachments.0.thumbnails.1.image.url}}" 
-                                width="{{item.object.attachments.0.thumbnails.1.image.width}}" 
-                                height="{{item.object.attachments.0.thumbnails.1.image.height}}"
-                                sizing="contain">
-                                </iron-image>
-                              <!-- </a> -->
-                            </template>
+                        </a>
+                      <!-- Secondary photo(s) -->                      
+                      <div class="vertical layout secondary imgContainer">
+                        <!-- Second photo (if any) -->
+                        <a href="{{item.object.attachments.0.thumbnails.1.url}}">
+                          <div class="album_caption2" 
+                          style$="background-image: url('{{item.object.attachments.0.thumbnails.1.image.url}}');">
                           </div>
+                        </a>
 
-                          <!-- Third photo (if any) -->
-                          <div> 
-                            <template is="dom-if" if="{{item.object.attachments.0.thumbnails.2.image.url}}">
-                              <!-- <a href="{{item.object.attachments.0.thumbnails.2.url}}"> -->
-                                <iron-image src="{{item.object.attachments.0.thumbnails.2.image.url}}"
-                                width="{{item.object.attachments.0.thumbnails.2.image.width}}" 
-                                height="{{item.object.attachments.0.thumbnails.2.image.height}}"
-                                sizing="contain">
-                              </iron-image>
-                              <!-- </a> -->
-                          </template>
+                        <!-- Third photo (if any) -->
+                        <a href="{{item.object.attachments.0.thumbnails.2.url}}">
+                          <div class="album_caption3"
+                          style$="background-image: url('{{item.object.attachments.0.thumbnails.2.image.url}}');"> 
                           </div>
+                        </a>
 
-                          <!-- Fourth photo (if any) -->
-                          <div> 
-                            <template is="dom-if" if="{{item.object.attachments.0.thumbnails.3.image.url}}">
-                              <!-- <a href="{{item.object.attachments.0.thumbnails.3.url}}"> -->
-                                <iron-image src="{{item.object.attachments.0.thumbnails.3.image.url}}"
-                                width="{{item.object.attachments.0.thumbnails.3.image.width}}" 
-                                height="{{item.object.attachments.0.thumbnails.3.image.height}}"
-                                sizing="contain">
-                              </iron-image>
-                              <!-- </a> -->
-                            </template>
+                        <!-- Fourth photo (if any) -->
+                        <a href="{{item.object.attachments.0.thumbnails.3.url}}">
+                          <div class="album_caption4"
+                          style$="background-image: url('{{item.object.attachments.0.thumbnails.3.image.url}}');"> 
                           </div>
-                        </div>
+                        </a>
                       </div>
-
+                    </div>
+                      
                     </template>
                   </template>
                 <!-- FOOTER: info about #+1's and #replies to the post -->
