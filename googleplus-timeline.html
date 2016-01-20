@@ -109,6 +109,10 @@ Example:
       padding-top: 10px;
     }
 
+    .header .name{
+      padding-top: 10px;
+    }
+
     .header_text{
       text-decoration: none;
       color: black;
@@ -177,7 +181,14 @@ Example:
 
     #album-title{
       font-size: 14px;
+      color: white;
+      font-weight: bold;
     }
+
+    #album-title:hover{
+      text-decoration: underline;
+    }
+
     #share_details{
       padding-left: 15px;
     }
@@ -210,11 +221,16 @@ Example:
       margin-top: 20px;  
     }
 
-    /* Album caption styles */
+    /* Album and caption styles */
+    #albumContainer{
+      padding-left: 15px;
+
+    }
+    
     .imgContainer{
-        margin: 0px;
-        padding: 0px;
-        border: 0px;
+      margin: 0px;
+      padding: 0px;
+      border: 0px;
     }
     .album_caption1{
       background-size: 100% 100%;
@@ -292,7 +308,7 @@ Example:
                 <!-- HEADER: user's avatar, user identifier and time information -->
                 <div class="header horizontal layout">
                   <a href="{{item.actor.url}}" target="_blank" class="header_text"><iron-icon src="{{item.actor.image.url}}" class="userAvatarPost"></iron-icon></a>
-                  <div class="flex"><a href="{{item.actor.url}}" target="_blank" class="header_text"> {{item.actor.displayName}}</a>
+                  <div class="flex name"><a href="{{item.actor.url}}" target="_blank" class="header_text"> {{item.actor.displayName}}</a>
                   </div>
                   <span class="date"><a href="{{item.url}}" target="_blank" class="header_text"> {{item.published_pretty}}</a></span>
                 </div>
@@ -350,38 +366,39 @@ Example:
                       <!-- Main photo -->
     
                     <!-- Main photo -->
-                    <a href="{{item.object.attachments.0.url}}" id="album-title">{{item.object.attachments.0.displayName}}</a>
-                    <div class="horizontal layout wrap" style="width:380px">
-                        <a href="{{item.object.attachments.0.thumbnails.0.url}}">
-                          <div class=" album_caption1" 
-                          style$="background-image: url('{{item.object.attachments.0.thumbnails.0.image.url}}');">
-                          </div>
-                        </a>
-                      <!-- Secondary photo(s) -->                      
-                      <div class="vertical layout secondary imgContainer">
-                        <!-- Second photo (if any) -->
-                        <a href="{{item.object.attachments.0.thumbnails.1.url}}">
-                          <div class="album_caption2" 
-                          style$="background-image: url('{{item.object.attachments.0.thumbnails.1.image.url}}');">
-                          </div>
-                        </a>
+                    <div id="albumContainer">
+                      <a href="{{item.object.attachments.0.url}}" id="album_title">{{item.object.attachments.0.displayName}}</a>
+                      <div class="horizontal layout wrap" style="width:380px">
+                          <a href="{{item.object.attachments.0.thumbnails.0.url}}">
+                            <div class=" album_caption1" 
+                            style$="background-image: url('{{item.object.attachments.0.thumbnails.0.image.url}}');">
+                            </div>
+                          </a>
+                        <!-- Secondary photo(s) -->                      
+                        <div class="vertical layout secondary imgContainer">
+                          <!-- Second photo (if any) -->
+                          <a href="{{item.object.attachments.0.thumbnails.1.url}}">
+                            <div class="album_caption2" 
+                            style$="background-image: url('{{item.object.attachments.0.thumbnails.1.image.url}}');">
+                            </div>
+                          </a>
 
-                        <!-- Third photo (if any) -->
-                        <a href="{{item.object.attachments.0.thumbnails.2.url}}">
-                          <div class="album_caption3"
-                          style$="background-image: url('{{item.object.attachments.0.thumbnails.2.image.url}}');"> 
-                          </div>
-                        </a>
+                          <!-- Third photo (if any) -->
+                          <a href="{{item.object.attachments.0.thumbnails.2.url}}">
+                            <div class="album_caption3"
+                            style$="background-image: url('{{item.object.attachments.0.thumbnails.2.image.url}}');"> 
+                            </div>
+                          </a>
 
-                        <!-- Fourth photo (if any) -->
-                        <a href="{{item.object.attachments.0.thumbnails.3.url}}">
-                          <div class="album_caption4"
-                          style$="background-image: url('{{item.object.attachments.0.thumbnails.3.image.url}}');"> 
-                          </div>
-                        </a>
+                          <!-- Fourth photo (if any) -->
+                          <a href="{{item.object.attachments.0.thumbnails.3.url}}">
+                            <div class="album_caption4"
+                            style$="background-image: url('{{item.object.attachments.0.thumbnails.3.image.url}}');"> 
+                            </div>
+                          </a>
+                        </div>
                       </div>
-                    </div>
-                      
+                    </div>  
                     </template>
                   </template>
                 <!-- FOOTER: info about #+1's and #replies to the post -->
