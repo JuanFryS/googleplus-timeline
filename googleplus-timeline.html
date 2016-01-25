@@ -223,24 +223,23 @@ Example:
 
     /* Album and caption styles */
     #album_title{
-      color: white;
+      color: black;
       font-size: 16px;
       font-weight: bold;
     }
-
+/*
     #title_container{
       padding: 15px;
-    }
+    }*/
 
     #album_title:hover{
-      color: white;
+      color: black;
       text-decoration: underline;
       font-size: 16px;
     }
 
     #albumContainer{
-      padding-left: 15px;
-      padding-top: 15px;
+      padding: 15px;
     }
     
     .imgContainer{
@@ -248,11 +247,19 @@ Example:
       padding: 0px;
       border: 0px;
     }
+    
+    /*.album_caption1:hover:before { background: none; }
+    .album_caption2:hover:before { background: none; }
+    .album_caption1:before { 
+      background: rgba(0,0,0, 0.2);
+    }
+    .album_caption2:before { 
+      background: rgba(0,0,0, 0.2);
+    }*/
+
     .album_caption1{
       background-size: 100% 100%;
       background-repeat: no-repeat;
-      height: 262px;
-      width: 262px;
       border: 1px;
       border-style: solid;
       color: white;
@@ -261,8 +268,8 @@ Example:
     .album_caption2{
       background-size: 100% 100%;
       background-repeat: no-repeat;
-      height: 86px;
-      width: 86px;
+      /*height: 86px;
+      width: 86px;*/
       margin: 0px;
       border: 1px;
       border-style:solid;
@@ -271,8 +278,8 @@ Example:
     .album_caption3{
       background-size: 100% 100%;
       background-repeat: no-repeat;
-      height: 86px;
-      width: 86px;
+      /*height: 86px;
+      width: 86px;*/
       margin: 0px;
       border: 1px;
       border-style: solid;
@@ -281,8 +288,8 @@ Example:
     .album_caption4{
       background-size: 100% 100%;
       background-repeat: no-repeat;
-      height: 86px;
-      width: 86px;
+      /*height: 86px;
+      width: 86px;*/
       color: white;
       margin: 0px;
       border: 2px;
@@ -319,8 +326,10 @@ Example:
         <div class="content">
           <template is="dom-repeat" items="{{timeline_posts}}" sort="_sortPosts" >
             <paper-material elevation="2" class="postShadow">
+              
               <!-- Google+ POST -->
               <div class="post">
+
                 <!-- HEADER: user's avatar, user identifier and time information -->
                 <div class="header horizontal layout">
                   <a href="{{item.actor.url}}" target="_blank" class="header_text"><iron-icon src="{{item.actor.image.url}}" class="userAvatarPost"></iron-icon></a>
@@ -328,7 +337,6 @@ Example:
                   </div>
                   <span class="date"><a href="{{item.url}}" target="_blank" class="header_text"> {{item.published_pretty}}</a></span>
                 </div>
-
 
                 <!-- BODY: text and details about the post itself -->
                   <!-- post content -->
@@ -346,8 +354,7 @@ Example:
                     Video: {{_hasAttachment(item,'video')}}
                     Photo: {{_hasAttachment(item,'photo')}}
                     Article: {{_hasAttachment(item,'article')}}
-                    Album: {{_hasAttachment(item,'album')}}</p>
- -->
+                    Album: {{_hasAttachment(item,'album')}}</p> -->
                     <!-- post video attachment (if any) -->
                     <template is="dom-if" if="{{_hasVideoAttachment(item)}}">
                       <iframe id="video" type="text/html" width="380" height="285" frameBorder="0"
@@ -377,57 +384,74 @@ Example:
 
                     <!-- Album attachment (if any) -->
                     <template is="dom-if" if="{{_hasAttachment(item,'album')}}">
-                      <!-- <a href="{{item.object.attachments.0.url}}" id="album-title">{{item.object.attachments.0.displayName}}</a> -->
                       <!-- Shows up to 4 captions of the album -->
-                      <!-- Main photo -->
-    
-                    <!-- Main photo -->
-                    <div id="albumContainer">
-                      <div class="horizontal layout wrap" style="width:380px">
-                          <a href="{{item.object.attachments.0.thumbnails.0.url}}" target="_blank">
-                            <div class=" album_caption1" 
-                            style$="background-image: url('{{item.object.attachments.0.thumbnails.0.image.url}}');">
-                              <div id="title_container">
-                                <a href="{{item.object.attachments.0.url}}" id="album_title" target="_blank">{{item.object.attachments.0.displayName}}</a>
-                              </div>
-                            </div>
-                          </a>
-                        <!-- Secondary photo(s) -->                      
-                        <div class="vertical layout secondary imgContainer">
-                          <!-- Second photo (if any) -->
-                          <a href="{{item.object.attachments.0.thumbnails.1.url}}" target="_blank">
-                            <div class="album_caption2" 
-                            style$="background-image: url('{{item.object.attachments.0.thumbnails.1.image.url}}');">
-                            </div>
-                          </a>
-
-                          <!-- Third photo (if any) -->
-                          <a href="{{item.object.attachments.0.thumbnails.2.url}}" target="_blank">
-                            <div class="album_caption3"
-                            style$="background-image: url('{{item.object.attachments.0.thumbnails.2.image.url}}');"> 
-                            </div>
-                          </a>
-
-                          <!-- Fourth photo (if any) -->
-                          <a href="{{item.object.attachments.0.thumbnails.3.url}}" target="_blank">
-                            <div class="album_caption4"
-                            style$="background-image: url('{{item.object.attachments.0.thumbnails.3.image.url}}');"> 
-                            </div>
-                          </a>
+                      <div id="albumContainer">
+                        <div id="title_container">
+                          <a href="{{item.object.attachments.0.url}}" id="album_title" target="_blank">{{item.object.attachments.0.displayName}}</a>
                         </div>
-                      </div>
-                    </div>  
+
+                        <!-- Main photo -->
+                        <div class="horizontal layout wrap" style="width:380px">
+                            
+                          <template is="dom-if" if="{{item.object.attachments.0.thumbnails.0.url}}">
+                            <a href="{{item.object.attachments.0.thumbnails.0.url}}" target="_blank">
+                              <div class=" album_caption1" 
+                              style$="background-image: url('{{item.object.attachments.0.thumbnails.0.image.url}}');
+                              height:{{_getCaptionDimensions(0,item)}}; 
+                              width:{{_getCaptionDimensions(0,item)}};" >
+                              </div>
+                            </a>
+                          </template>
+                        
+                          <!-- Secondary photo(s) -->                      
+                          <div class="vertical layout secondary imgContainer">
+                            <!-- Second photo (if any) -->
+                            <template is="dom-if" if="{{item.object.attachments.0.thumbnails.1.url}}">
+                              <a href="{{item.object.attachments.0.thumbnails.1.url}}" target="_blank">
+                                <div class="album_caption2" 
+                                style$="background-image: url('{{item.object.attachments.0.thumbnails.1.image.url}}');
+                                height:{{_getCaptionDimensions(1,item)}}; 
+                                width:{{_getCaptionDimensions(1,item)}};">
+                                </div>
+                              </a>
+                            </template>
+
+                            <!-- Third photo (if any) -->
+                            <template is="dom-if" if="{{item.object.attachments.0.thumbnails.2.url}}">
+                              <a href="{{item.object.attachments.0.thumbnails.2.url}}" target="_blank">
+                                <div class="album_caption3"
+                                style$="background-image: url('{{item.object.attachments.0.thumbnails.2.image.url}}');
+                                height:{{_getCaptionDimensions(2,item)}}; 
+                                width:{{_getCaptionDimensions(2,item)}};"> 
+                                </div>
+                              </a>
+                            </template>
+
+                            <!-- Fourth photo (if any) -->
+                            <template is="dom-if" if="{{item.object.attachments.0.thumbnails.3.url}}">
+                              <a href="{{item.object.attachments.0.thumbnails.3.url}}" target="_blank">
+                                <div class="album_caption4"
+                                style$="background-image: url('{{item.object.attachments.0.thumbnails.3.image.url}}');
+                                height:{{_getCaptionDimensions(3,item)}}; 
+                                width:{{_getCaptionDimensions(3,item)}};"> 
+                                </div>
+                              </a>
+                            </template>
+                          </div>
+                        </div>
+                      </div>  
                     </template>
                   </template>
+
                 <!-- FOOTER: info about #+1's and #replies to the post -->
                 <div id="likeContainer">
-
+                  <!-- #Plus to the post-->
                   <iron-icon class="share_icon" icon="add"></iron-icon> 
                   <span id="stats_count">{{item.object.plusoners.totalItems}}</span>
-
+                  <!-- #Replies to the post-->
                   <iron-icon class="share_icon" icon="reply"></iron-icon> 
                   <span id="stats_count">{{item.object.replies.totalItems}}</span>
-
+                  <!-- #Shares of the post-->
                   <iron-icon class="share_icon" icon="social:share"></iron-icon> 
                   <span id="stats_count">{{item.object.resharers.totalItems}}</span>
             </div>
@@ -636,7 +660,58 @@ Example:
 
     _isSharedPost: function(item){
       return item.verb === "share";
-    }
+    },
+
+    /* Adjusts the dimensions of album captions. Given an index inside the
+    album caption List, the function returns a fixed dimension, depending 
+    of the image role in the camption collage (main, secondary) */
+    _getCaptionDimensions: function(image_index,item){
+      dimension = "0px";
+      main_photo = (image_index == 0);
+      album_captions_length = item.object.attachments[0].thumbnails.length;
+      if(main_photo){
+        switch(album_captions_length){
+          case 1:
+            dimension = "300px";
+            break;
+          case 2:
+            dimension = "173px";
+            break;
+          case 3:
+            dimension = "200px";
+            break;
+          case 4:
+            dimension = "262px";
+            break;
+          default: /* More than 4 photos*/
+            /* We only show 4 captions of the album, so the main photo will have the same dimension
+            as the previous case */
+            dimension = "262px";
+        }
+      }else{
+        switch(album_captions_length){
+          case 1:
+            dimension = "0px";
+            break;
+          case 2:
+            dimension = "173px";
+            break;
+          case 3:
+            dimension = "100px";
+            break;
+          case 4:
+            dimension = "86px";
+            break;
+          default: /* More than 4 photos*/
+            /* We only show 4 captions of the album, so the secondary photos will have the same dimension
+            as the previous case */
+            dimension = "86px";
+        }
+      }
+      console.log("Main caption: " + main_photo + " dimension: " + dimension + ". N. fotos: " + album_captions_length);
+      return dimension;
+    },
+
   });
 
 </script>
