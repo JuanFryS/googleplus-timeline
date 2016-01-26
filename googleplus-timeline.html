@@ -131,15 +131,16 @@ Example:
     
     /* Post content styles */
     .text{
-      padding: 15px;
+      padding: 0px 15px 15px 15px;
     }
+
     #video{
       padding-bottom: 15px;
     }
     .attached_photo{
       width: 380px;
       height: auto;
-      padding: 15px;
+      padding: 0px 15px 15px 15px;
     }
 
     #article_title{
@@ -179,16 +180,6 @@ Example:
       color: #1976D2;
     }
 
-    #album-title{
-      font-size: 14px;
-      color: white;
-      font-weight: bold;
-    }
-
-    #album-title:hover{
-      text-decoration: underline;
-    }
-
     #share_details{
       padding-left: 15px;
     }
@@ -224,22 +215,19 @@ Example:
     /* Album and caption styles */
     #album_title{
       color: black;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: bold;
+      padding-bottom: 10px; 
     }
-/*
-    #title_container{
-      padding: 15px;
-    }*/
 
     #album_title:hover{
       color: black;
       text-decoration: underline;
-      font-size: 16px;
+      font-size: 14px;
     }
 
     #albumContainer{
-      padding: 15px;
+      padding: 0px 15px 15px 15px;
     }
     
     .imgContainer{
@@ -268,8 +256,6 @@ Example:
     .album_caption2{
       background-size: 100% 100%;
       background-repeat: no-repeat;
-      /*height: 86px;
-      width: 86px;*/
       margin: 0px;
       border: 1px;
       border-style:solid;
@@ -278,8 +264,6 @@ Example:
     .album_caption3{
       background-size: 100% 100%;
       background-repeat: no-repeat;
-      /*height: 86px;
-      width: 86px;*/
       margin: 0px;
       border: 1px;
       border-style: solid;
@@ -288,11 +272,8 @@ Example:
     .album_caption4{
       background-size: 100% 100%;
       background-repeat: no-repeat;
-      /*height: 86px;
-      width: 86px;*/
       color: white;
       margin: 0px;
-      border: 2px;
       border: 1px;
       border-style: solid;
       color: white;
@@ -373,13 +354,13 @@ Example:
 
                     <!-- Link/article attachment (if any) -->
                     <template is="dom-if" if="{{_hasAttachment(item,'article')}}">
+                      <p id="article_title" class="post-link"> {{item.object.attachments.0.displayName}} </p>
+                      <p id="article_subtitle"> {{item.object.attachments.0.content}} </p>
                       <a href="{{item.object.attachments.0.url}}" target="_blank" >
                         <template is="dom-if" if="{{item.object.attachments.0.image.url}}">
                           <img class="attached_photo" src="{{item.object.attachments.0.image.url}}">
                         </template>
-                        <p id="article_title" class="post-link"> {{item.object.attachments.0.displayName}} </p>
                       </a>
-                      <p id="article_subtitle"> {{item.object.attachments.0.content}} </p>
                     </template>
 
                     <!-- Album attachment (if any) -->
@@ -507,10 +488,10 @@ Example:
       this.following_user_id = "me";
       this.$.requestPosts.generateRequest();
       //We generate an ajax request for each user that the authenticated user follows 
-      // for (i=0;i<detail.response.items.length;i++) {
-      //   this.following_user_id = detail.response.items[i].id;
-      //   this.$.requestPosts.generateRequest();
-      // }
+      for (i=0;i<detail.response.items.length;i++) {
+        this.following_user_id = detail.response.items[i].id;
+        this.$.requestPosts.generateRequest();
+      }
     },
 
     _getRequestPostsURL: function(user_id){
@@ -558,26 +539,6 @@ Example:
       // removed from a document.
       //
       // Use this to clean up anything you did in `attached`.
-    },
-
-    // Element Behavior
-
-    /**
-     * The `googleplus-timeline-lasers` event is fired whenever `fireLasers` is called.
-     *
-     * @event googleplus-timeline-lasers
-     * @detail {{sound: String}}
-     */
-
-    /**
-     * Sometimes it's just nice to say hi.
-     *
-     * @param {string} greeting A positive greeting.
-     * @return {string} The full greeting.
-     */
-    sayHello: function(greeting) {
-      var response = greeting || 'Hello World!';
-      return 'googleplus-timeline says, ' + response;
     },
 
     /**
