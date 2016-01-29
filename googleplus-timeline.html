@@ -477,7 +477,7 @@ Example:
           type: String,
           computed: "_getRequestPostsURL(following_user_id)"
         },
-        contador: {
+        page_timestamp: {
           type: Number,
           value: 0
         }
@@ -528,6 +528,7 @@ Example:
       // visual state or active behavior (measuring sizes, beginning animations,
       // loading resources, etc).
       if (this.token) {
+          // We set the timestamp
           this.$.requestFollowing.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
           this.$.requestPosts.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
           this.$.requestFollowing.generateRequest();
