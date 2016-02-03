@@ -515,20 +515,18 @@ Example:
                     "timestamp": user_posts[user_posts.length-1].published,
                     "nextPageToken": detail.response.nextPageToken};
       
-      // if(last_post_details.timestamp > this.page_timestamp && (typeof last_post_details.nextPageToken) != 'undefined'){
-      //   //We set the next page param in the next request
-      //   console.log("Voy a pedir la siguiente pagina de ", last_post_details.displayName);
-      //   request_params = {"pageToken": last_post_details.nextPageToken,
-      //                     "maxResults": 40};
-      //   this.following_user_id = last_post_details.author;
-      //   this.$.requestPosts.setAttribute("url", this._getRequestPostsURL(last_post_details.author));
-      //   this.$.requestPosts.setAttribute("params", request_params);
-      //   this.$.requestPosts.generateRequest();
-      //  }
+      if(last_post_details.timestamp > this.page_timestamp && (typeof last_post_details.nextPageToken) != 'undefined'){
+        //We set the next page param in the next request
+        console.log("Voy a pedir la siguiente pagina de ", last_post_details.displayName, " página " + last_post_details.nextPageToken + "(timestamp = " + last_post_details.timestamp + " )");
+        request_params = {"pageToken": last_post_details.nextPageToken};
+        this.$.requestPosts.setAttribute("url", this._getRequestPostsURL(last_post_details.author));
+        this.$.requestPosts.setAttribute("params", JSON.stringify(request_params));
+        this.$.requestPosts.generateRequest();
+       }
 
       // We add the timestamp of the last post retrieved along with its author to an auxiliary variable
       this.push('last_retrieved_posts',last_post_details);
-      console.log(this.last_retrieved_posts);            
+      // console.log(this.last_retrieved_posts);            
     },
 
     // Element Lifecycle
@@ -553,7 +551,9 @@ Example:
       if (this.token) {
         var actual_tmp = new Date();
         //We set the timestamp per page to two months
-        this.page_timestamp = actual_tmp.getTime() - 5356800000;
+        // (one month = 2678400000)
+        this.page_timestamp = actual_tmp.getTime() - 2678400000;
+        console.log(this.page_timestamp);
         //We set the headers for the Google API requests
         this.$.requestFollowing.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
         this.$.requestPosts.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
