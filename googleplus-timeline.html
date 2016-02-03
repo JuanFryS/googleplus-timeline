@@ -292,7 +292,6 @@ Example:
 
     <iron-ajax
                id="requestPosts"
-               url="{{request_posts_url}}"
                method="GET"
                handleAs='json'
                on-response="_responsePosts"
@@ -464,20 +463,9 @@ Example:
           reflectToAttribute: true,
           notify: true
         },
-
         timeline_posts: {
           type: Object,
           value: []
-        },
-
-        following_user_id: {
-          type: String,
-          value: ""
-        },
-
-        request_posts_url: {
-          type: String,
-          computed: "_getRequestPostsURL(following_user_id)"
         },
         page_timestamp: {
           type: Number,
@@ -492,11 +480,13 @@ Example:
 
     _responseFollowings: function(event, detail){
       //We generate an ajax request to get the post published by the authenticated user
-      this.following_user_id = "me";
+      this.$.requestPosts.setAttribute("url", this._getRequestPostsURL("me"));
       this.$.requestPosts.generateRequest();
       //We generate an ajax request for each user that the authenticated user follows 
       for (i=0;i<detail.response.items.length;i++) {
-        this.following_user_id = detail.response.items[i].id;
+        user_id = detail.response.items[i].id;
+        console.log("user_id con el que voy a hacer la peticion " + user_id);
+        this.$.requestPosts.setAttribute("url", this._getRequestPostsURL(user_id));
         this.$.requestPosts.generateRequest();
       }
     },
@@ -505,17 +495,8 @@ Example:
       return "https://www.googleapis.com/plus/v1/people/" + user_id + "/activities/public";
     },
 
-    // Returns the google resource user id contained in the activities list API request 
-    //(https://www.googleapis.com/plus/v1/people/" + user_id + "/activities/public")  
-    _getUserPostRequested: function(activities_url){
-      console.log(activities_url);
-      splited_url = activities_url.split("/");
-      user_id = splited_url[6];
-      return user_id;
-    },
-
     _responsePosts: function(event, detail){
-      // We reset the params for the next request of requestPost iron-ajax 
+      // We reset the params and url fields for the next request of requestPost iron-ajax 
       this.$.requestPosts.setAttribute("params", '{}');
       //Appends all user posts to the user timeline 
       user_posts = detail.response.items;
@@ -529,9 +510,7 @@ Example:
       // We check if the last user post returned is previous to the page_timestamp (posts that will be displayed on the first page)
       // If it is, we request the following post from the user until we've reached the reference timestamp for the actual "page"
       // that displays the component
-      console.log(event);
-      requestURL = event.target.requestUrl;
-      last_post_details = { "author": this._getUserPostRequested(requestURL),
+      last_post_details = { "author": user_posts[user_posts.length-1].actor.id,
                     "displayName": user_posts[user_posts.length-1].actor.displayName,
                     "timestamp": user_posts[user_posts.length-1].published,
                     "nextPageToken": detail.response.nextPageToken};
@@ -542,6 +521,7 @@ Example:
       //   request_params = {"pageToken": last_post_details.nextPageToken,
       //                     "maxResults": 40};
       //   this.following_user_id = last_post_details.author;
+      //   this.$.requestPosts.setAttribute("url", this._getRequestPostsURL(last_post_details.author));
       //   this.$.requestPosts.setAttribute("params", request_params);
       //   this.$.requestPosts.generateRequest();
       //  }
@@ -574,7 +554,6 @@ Example:
         var actual_tmp = new Date();
         //We set the timestamp per page to two months
         this.page_timestamp = actual_tmp.getTime() - 5356800000;
-        console.log(this.page_timestamp);
         //We set the headers for the Google API requests
         this.$.requestFollowing.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
         this.$.requestPosts.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
