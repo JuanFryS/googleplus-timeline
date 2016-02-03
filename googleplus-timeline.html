@@ -485,7 +485,6 @@ Example:
       //We generate an ajax request for each user that the authenticated user follows 
       for (i=0;i<detail.response.items.length;i++) {
         user_id = detail.response.items[i].id;
-        console.log("user_id con el que voy a hacer la peticion " + user_id);
         this.$.requestPosts.setAttribute("url", this._getRequestPostsURL(user_id));
         this.$.requestPosts.generateRequest();
       }
@@ -495,6 +494,22 @@ Example:
       return "https://www.googleapis.com/plus/v1/people/" + user_id + "/activities/public";
     },
 
+    _updateLastRetrievedPosts: function(last_post_details){
+      // We add the timestamp of the last post retrieved along with its author to an auxiliary variable
+      found = false;
+      for(i=0; i < this.last_retrieved_posts.length && !found;i++){
+        console.log(this.last_retrieved_posts[i].author);
+        if(this.last_retrieved_posts[i].author === last_post_details.author){
+          found = true;
+          this.set('last_retrieved_posts.' + i + '.timestamp', last_post_details.timestamp);
+          this.set('last_retrieved_posts.' + i + '.nextPageToken', last_post_details.nextPageToken); 
+        }
+      }
+      if(!found)
+        this.push('last_retrieved_posts' ,last_post_details);
+      console.log(this.last_retrieved_posts);     
+    },
+    
     _responsePosts: function(event, detail){
       // We reset the params and url fields for the next request of requestPost iron-ajax 
       this.$.requestPosts.setAttribute("params", '{}');
@@ -515,6 +530,9 @@ Example:
                     "timestamp": user_posts[user_posts.length-1].published,
                     "nextPageToken": detail.response.nextPageToken};
       
+      //We update the param that holds the relative fields about the last post retrieved and basic author info
+      this._updateLastRetrievedPosts(last_post_details);
+
       if(last_post_details.timestamp > this.page_timestamp && (typeof last_post_details.nextPageToken) != 'undefined'){
         //We set the next page param in the next request
         console.log("Voy a pedir la siguiente pagina de ", last_post_details.displayName, " página " + last_post_details.nextPageToken + "(timestamp = " + last_post_details.timestamp + " )");
@@ -524,9 +542,6 @@ Example:
         this.$.requestPosts.generateRequest();
        }
 
-      // We add the timestamp of the last post retrieved along with its author to an auxiliary variable
-      this.push('last_retrieved_posts',last_post_details);
-      // console.log(this.last_retrieved_posts);            
     },
 
     // Element Lifecycle
@@ -550,8 +565,7 @@ Example:
       
       if (this.token) {
         var actual_tmp = new Date();
-        //We set the timestamp per page to two months
-        // (one month = 2678400000)
+        //We set the timestamp per page to one month (one month = 2678400000 millis)
         this.page_timestamp = actual_tmp.getTime() - 2678400000;
         console.log(this.page_timestamp);
         //We set the headers for the Google API requests
