@@ -502,23 +502,52 @@ Example:
     },
 
     _getRequestPostsURL: function(user_id){
-      return "https://www.googleapis.com/plus/v1/people/" + user_id + "/activities/public"
+      return "https://www.googleapis.com/plus/v1/people/" + user_id + "/activities/public";
+    },
+
+    // Returns the google resource user id contained in the activities list API request 
+    //(https://www.googleapis.com/plus/v1/people/" + user_id + "/activities/public")  
+    _getUserPostRequested: function(activities_url){
+      console.log(activities_url);
+      splited_url = activities_url.split("/");
+      user_id = splited_url[6];
+      return user_id;
     },
 
     _responsePosts: function(event, detail){
-      //Append all user posts to the user timeline 
+      // We reset the params for the next request of requestPost iron-ajax 
+      this.$.requestPosts.setAttribute("params", '{}');
+      //Appends all user posts to the user timeline 
       user_posts = detail.response.items;
       for(i=0; i< user_posts.length; i++){
         //We transform timestamps to a more manageable format of every post received (published and updated fields)
         user_posts[i] = this._changeTime(user_posts[i]);
+        // We insert the post into the timeline that holds all posts that will be displayed to the user
         this.push('timeline_posts', user_posts[i]);
-        // console.log(this.timeline_posts[i]);
       }
 
-      //We add the timestamp of the last post retrieved along with its author to an auxiliary variable
-      last_post = { "author": user_posts[user_posts.length-1].actor.id,
-                    "timestamp": user_posts[user_posts.length-1].published};
-      this.push('last_retrieved_posts',last_post);
+      // We check if the last user post returned is previous to the page_timestamp (posts that will be displayed on the first page)
+      // If it is, we request the following post from the user until we've reached the reference timestamp for the actual "page"
+      // that displays the component
+      console.log(event);
+      requestURL = event.target.requestUrl;
+      last_post_details = { "author": this._getUserPostRequested(requestURL),
+                    "displayName": user_posts[user_posts.length-1].actor.displayName,
+                    "timestamp": user_posts[user_posts.length-1].published,
+                    "nextPageToken": detail.response.nextPageToken};
+      
+      // if(last_post_details.timestamp > this.page_timestamp && (typeof last_post_details.nextPageToken) != 'undefined'){
+      //   //We set the next page param in the next request
+      //   console.log("Voy a pedir la siguiente pagina de ", last_post_details.displayName);
+      //   request_params = {"pageToken": last_post_details.nextPageToken,
+      //                     "maxResults": 40};
+      //   this.following_user_id = last_post_details.author;
+      //   this.$.requestPosts.setAttribute("params", request_params);
+      //   this.$.requestPosts.generateRequest();
+      //  }
+
+      // We add the timestamp of the last post retrieved along with its author to an auxiliary variable
+      this.push('last_retrieved_posts',last_post_details);
       console.log(this.last_retrieved_posts);            
     },
 
@@ -545,6 +574,7 @@ Example:
         var actual_tmp = new Date();
         //We set the timestamp per page to two months
         this.page_timestamp = actual_tmp.getTime() - 5356800000;
+        console.log(this.page_timestamp);
         //We set the headers for the Google API requests
         this.$.requestFollowing.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
         this.$.requestPosts.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
