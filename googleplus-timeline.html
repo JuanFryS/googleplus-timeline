@@ -440,6 +440,10 @@ Example:
               </template> <!-- END OF POST-->
             </paper-material>
           </template>
+          <!-- "Load More" button -->
+          <div on-click="load" class="horizontal center-justified layout" id="loadMoreButton">
+          <paper-button id="button">LOAD MORE</paper-button>
+        </div>
         </div>
       </paper-header-panel>
   </template>
@@ -498,7 +502,6 @@ Example:
       // We add the timestamp of the last post retrieved along with its author to an auxiliary variable
       found = false;
       for(i=0; i < this.last_retrieved_posts.length && !found;i++){
-        console.log(this.last_retrieved_posts[i].author);
         if(this.last_retrieved_posts[i].author === last_post_details.author){
           found = true;
           this.set('last_retrieved_posts.' + i + '.timestamp', last_post_details.timestamp);
@@ -510,6 +513,19 @@ Example:
       console.log(this.last_retrieved_posts);     
     },
     
+    _obtainNextPagePost: function (user_id, last_post_timestamp, last_post_nextPageToken){
+      // We check if the last user post returned is previous to the page_timestamp (posts that will be displayed on the first page)
+      // If it is, we'll request the following post from the user until we've reached the reference timestamp for the actual "page"
+      // that displays the component
+      if(last_post_timestamp > this.page_timestamp && (typeof last_post_nextPageToken) != 'undefined'){
+        //We set the next page param in the next request
+        request_params = {"pageToken": last_post_nextPageToken};
+        this.$.requestPosts.setAttribute("url", this._getRequestPostsURL(user_id));
+        this.$.requestPosts.setAttribute("params", JSON.stringify(request_params));
+        this.$.requestPosts.generateRequest();
+       }
+    },
+
     _responsePosts: function(event, detail){
       // We reset the params and url fields for the next request of requestPost iron-ajax 
       this.$.requestPosts.setAttribute("params", '{}');
@@ -522,9 +538,6 @@ Example:
         this.push('timeline_posts', user_posts[i]);
       }
 
-      // We check if the last user post returned is previous to the page_timestamp (posts that will be displayed on the first page)
-      // If it is, we request the following post from the user until we've reached the reference timestamp for the actual "page"
-      // that displays the component
       last_post_details = { "author": user_posts[user_posts.length-1].actor.id,
                     "displayName": user_posts[user_posts.length-1].actor.displayName,
                     "timestamp": user_posts[user_posts.length-1].published,
@@ -533,15 +546,8 @@ Example:
       //We update the param that holds the relative fields about the last post retrieved and basic author info
       this._updateLastRetrievedPosts(last_post_details);
 
-      if(last_post_details.timestamp > this.page_timestamp && (typeof last_post_details.nextPageToken) != 'undefined'){
-        //We set the next page param in the next request
-        console.log("Voy a pedir la siguiente pagina de ", last_post_details.displayName, " página " + last_post_details.nextPageToken + "(timestamp = " + last_post_details.timestamp + " )");
-        request_params = {"pageToken": last_post_details.nextPageToken};
-        this.$.requestPosts.setAttribute("url", this._getRequestPostsURL(last_post_details.author));
-        this.$.requestPosts.setAttribute("params", JSON.stringify(request_params));
-        this.$.requestPosts.generateRequest();
-       }
-
+      // We obtain the next page for the user_posts, in order to obtain all the post in a given period (specified by page_timestamp)
+      this._obtainNextPagePost(last_post_details.author, last_post_details.timestamp, last_post_details.nextPageToken);    
     },
 
     // Element Lifecycle
@@ -580,6 +586,19 @@ Example:
       // removed from a document.
       //
       // Use this to clean up anything you did in `attached`.
+    },
+    
+    load: function () {
+      // We decrement the page_timestamp (we will show posts from a longer published date)
+      this.set('page_timestamp', this.page_timestamp - 2678400000);
+      // We check if we have all the posts of every user in the desired range of time
+      last_post_details = {};
+      console.log("Numero de seguidos " + this.last_retrieved_posts.length);
+      for(i=0; i<this.last_retrieved_posts.length; i++){
+        // We obtain the next page for the user_posts, in order to obtain all the post in a given period (specified by page_timestamp)
+        last_post_details = this.last_retrieved_posts[i];
+        this._obtainNextPagePost(last_post_details.author, last_post_details.timestamp, last_post_details.nextPageToken);    
+      }  
     },
 
     /**
