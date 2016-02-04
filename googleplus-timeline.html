@@ -307,7 +307,6 @@ Example:
           <template is="dom-repeat" items="{{timeline_posts}}" sort="_sortPosts" >
             <paper-material elevation="2" class="postShadow">   
               <!-- Google+ POST -->
-              <template is="dom-if" if="{{_isPreviousToPageTimestamp(item)}}">
                 <div class="post">
 
                   <!-- HEADER: user's avatar, user identifier and time information -->
@@ -436,14 +435,15 @@ Example:
                     <span id="stats_count">{{item.object.resharers.totalItems}}</span>
                   </div>
                 
-                </div> 
-              </template> <!-- END OF POST-->
+                </div> <!-- END OF POST -->
             </paper-material>
           </template>
           <!-- "Load More" button -->
-          <div on-click="load" class="horizontal center-justified layout" id="loadMoreButton">
-          <paper-button id="button">LOAD MORE</paper-button>
-        </div>
+          <!-- <template is="dom-if" if="{{_thereAreMorePosts()}}"> TODO: FIXME-->
+            <div on-click="_loadMorePosts" class="horizontal center-justified layout" id="loadMoreButton">
+            <paper-button id="button">LOAD MORE</paper-button>
+            </div>
+          <!-- </template> -->
         </div>
       </paper-header-panel>
   </template>
@@ -468,6 +468,10 @@ Example:
           notify: true
         },
         timeline_posts: {
+          type: Object,
+          value: []
+        },
+        next_timeline_posts: {
           type: Object,
           value: []
         },
@@ -525,17 +529,32 @@ Example:
         this.$.requestPosts.generateRequest();
        }
     },
+    
+    //Function _updateTimelinePosts: Check if the post was published inside the period of time
+    // of post expected to be shown by the component
+    _updateTimelinePosts: function(user_post){
+      // If the post was published inside the period fixed for the page, we add it to the 
+      // list of post that are being showed to the user
+      if(user_post.published >= this.page_timestamp)
+        this.push('timeline_posts', user_post);
+      // If the post was published previously, we insert it onto an auxiliar object
+      //that holds the components that will be shown in the next pages
+      else
+        this.push('next_timeline_posts', user_post);
+    },
 
     _responsePosts: function(event, detail){
-      // We reset the params and url fields for the next request of requestPost iron-ajax 
+      // We reset the params field for the next request of requestPost iron-ajax 
       this.$.requestPosts.setAttribute("params", '{}');
+      
       //Appends all user posts to the user timeline 
       user_posts = detail.response.items;
       for(i=0; i< user_posts.length; i++){
         //We transform timestamps to a more manageable format of every post received (published and updated fields)
         user_posts[i] = this._changeTime(user_posts[i]);
         // We insert the post into the timeline that holds all posts that will be displayed to the user
-        this.push('timeline_posts', user_posts[i]);
+        // (If the published date for the post is in the period of time that shows the actual page of the component)
+        this._updateTimelinePosts(user_posts[i]);
       }
 
       last_post_details = { "author": user_posts[user_posts.length-1].actor.id,
@@ -567,13 +586,11 @@ Example:
       //
       // This is a good place to perform any work related to your element's
       // visual state or active behavior (measuring sizes, beginning animations,
-      // loading resources, etc).
-      
+      // loading resources, etc).      
       if (this.token) {
         var actual_tmp = new Date();
         //We set the timestamp per page to one month (one month = 2678400000 millis)
         this.page_timestamp = actual_tmp.getTime() - 2678400000;
-        console.log(this.page_timestamp);
         //We set the headers for the Google API requests
         this.$.requestFollowing.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
         this.$.requestPosts.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
@@ -588,17 +605,27 @@ Example:
       // Use this to clean up anything you did in `attached`.
     },
     
-    load: function () {
+    _loadMorePosts: function () {
       // We decrement the page_timestamp (we will show posts from a longer published date)
       this.set('page_timestamp', this.page_timestamp - 2678400000);
-      // We check if we have all the posts of every user in the desired range of time
+      // First, we search for posts suitable to be shown in the auxiliar object
+      // of posts not shown from previous requests
+      user_post = {}
+      for(i=0; i<this.next_timeline_posts.length; i++){
+        user_post = this.next_timeline_posts[i];
+        if(user_post.published >= this.page_timestamp){
+          this.push('timeline_posts', user_post);
+          this.arrayDelete('next_timeline_posts', i);
+        }
+      }
+      //Then, we check if we have all the posts of every user in the desired range of time
       last_post_details = {};
-      console.log("Numero de seguidos " + this.last_retrieved_posts.length);
       for(i=0; i<this.last_retrieved_posts.length; i++){
         // We obtain the next page for the user_posts, in order to obtain all the post in a given period (specified by page_timestamp)
         last_post_details = this.last_retrieved_posts[i];
         this._obtainNextPagePost(last_post_details.author, last_post_details.timestamp, last_post_details.nextPageToken);    
-      }  
+      }
+
     },
 
     /**
@@ -663,7 +690,6 @@ Example:
       return updated_post;
     },
 
-
     _sortPosts: function(post1, post2) {
       if (post1.published == post2.published)
         return 0;
@@ -672,9 +698,18 @@ Example:
     },
 
     // AUXILIAR FUNCTIONS FOR DOM-IF CONDITIONS 
-    _isPreviousToPageTimestamp: function(item){
-      return item.published > this.page_timestamp;
-    },
+    
+    // _thereAreMorePosts: function(){ //TODO: FIXME
+    //   // Checks if there are remaining pages to be obtained from any user
+    //   remainingPages = false;
+    //   console.log(this.last_retrieved_posts);
+    //   for(i=0; i< this.last_retrieved_posts.length && !remainingPages; i++){
+    //     if(typeof this.last_retrieved_posts[i].nextPageToken != undefined){
+    //       remainingPages = true;
+    //     }
+    //   }
+    //   return (this.next_timeline_posts.length != 0) || (remainingPages != 0);
+    // },
 
     _hasAttachment: function(item, attachmentType){
       // if (item.object.attachments[0].objectType === "article"){
