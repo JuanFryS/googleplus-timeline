@@ -278,6 +278,11 @@ Example:
       border-style: solid;
       color: white;
     }
+    #loadMoreButton{
+      background-color: #9E9E9E;
+      padding-bottom: 10px;
+      font-weight: bold;
+    }
     </style>
 
   <template id="template">
@@ -334,6 +339,7 @@ Example:
                       Photo: {{_hasAttachment(item,'photo')}}
                       Article: {{_hasAttachment(item,'article')}}
                       Album: {{_hasAttachment(item,'album')}}</p> -->
+                      
                       <!-- post video attachment (if any) -->
                       <template is="dom-if" if="{{_hasVideoAttachment(item)}}">
                         <iframe id="video" type="text/html" width="380" height="285" frameBorder="0"
