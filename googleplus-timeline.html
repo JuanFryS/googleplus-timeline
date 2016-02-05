@@ -281,8 +281,11 @@ Example:
       border-style: solid;
       color: white;
     }
+    #loadMoreDiv{
+      padding-bottom: 10px;
+    }
     #loadMoreButton{
-      background-color: #9E9E9E;
+      background-color: #A9A9AA;
       padding-bottom: 10px;
       font-weight: bold;
     }
@@ -448,8 +451,8 @@ Example:
           </template>
           <!-- "Load More" button -->
           <!-- <template is="dom-if" if="{{_thereAreMorePosts()}}"> TODO: FIXME-->
-            <div on-click="_loadMorePosts" class="horizontal center-justified layout" id="loadMoreButton">
-            <paper-button id="button">LOAD MORE</paper-button>
+            <div on-click="_loadMorePosts" class="horizontal center-justified layout" id="loadMoreDiv">
+            <paper-button id="loadMoreButton">LOAD MORE</paper-button>
             </div>
           <!-- </template> -->
         </div>
@@ -526,7 +529,7 @@ Example:
         }
       }
       if(!found)
-        this.push('last_retrieved_posts' ,last_post_details);    
+        this.push('last_retrieved_posts' ,last_post_details);
     },
     
     _obtainNextPagePost: function (user_id, last_post_timestamp, last_post_nextPageToken){
@@ -561,24 +564,27 @@ Example:
       
       //Appends all user posts to the user timeline 
       user_posts = detail.response.items;
-      for(i=0; i< user_posts.length; i++){
-        //We transform timestamps to a more manageable format of every post received (published and updated fields)
-        user_posts[i] = this._changeTime(user_posts[i]);
-        // We insert the post into the timeline that holds all posts that will be displayed to the user
-        // (If the published date for the post is in the period of time that shows the actual page of the component)
-        this._updateTimelinePosts(user_posts[i]);
+      // If the user hasn't posted anything yet, we just ignore it
+      if(user_posts.length != 0){
+        for(i=0; i< user_posts.length; i++){
+          //We transform timestamps to a more manageable format of every post received (published and updated fields)
+          user_posts[i] = this._changeTime(user_posts[i]);
+          // We insert the post into the timeline that holds all posts that will be displayed to the user
+          // (If the published date for the post is in the period of time that shows the actual page of the component)
+          this._updateTimelinePosts(user_posts[i]);
+        }
+
+        last_post_details = { "author": user_posts[user_posts.length-1].actor.id,
+                      "displayName": user_posts[user_posts.length-1].actor.displayName,
+                      "timestamp": user_posts[user_posts.length-1].published,
+                      "nextPageToken": detail.response.nextPageToken};
+        
+        //We update the param that holds the relative fields about the last post retrieved and basic author info
+        this._updateLastRetrievedPosts(last_post_details);
+
+        // We obtain the next page for the user_posts, in order to obtain all the post in a given period (specified by page_timestamp)
+        this._obtainNextPagePost(last_post_details.author, last_post_details.timestamp, last_post_details.nextPageToken);    
       }
-
-      last_post_details = { "author": user_posts[user_posts.length-1].actor.id,
-                    "displayName": user_posts[user_posts.length-1].actor.displayName,
-                    "timestamp": user_posts[user_posts.length-1].published,
-                    "nextPageToken": detail.response.nextPageToken};
-      
-      //We update the param that holds the relative fields about the last post retrieved and basic author info
-      this._updateLastRetrievedPosts(last_post_details);
-
-      // We obtain the next page for the user_posts, in order to obtain all the post in a given period (specified by page_timestamp)
-      this._obtainNextPagePost(last_post_details.author, last_post_details.timestamp, last_post_details.nextPageToken);    
     },
 
     // Element Lifecycle
