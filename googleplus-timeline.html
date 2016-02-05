@@ -19,6 +19,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="bower_components/paper-material/paper-material.html">
 <link rel="import" href="bower_components/paper-button/paper-button.html">
 <link rel="import" href="bower_components/iron-image/iron-image.html">
+<link rel="import" href="bower_components/google-youtube/google-youtube.html">
+
 <!--
 An element providing a solution to no problem in particular.
 
@@ -31,6 +33,7 @@ Example:
 @demo demo/index.html
 @hero hero.svg
 -->
+
 <dom-module id="googleplus-timeline">
 
     <style is="custom-style">
@@ -342,9 +345,8 @@ Example:
                       
                       <!-- post video attachment (if any) -->
                       <template is="dom-if" if="{{_hasVideoAttachment(item)}}">
-                        <iframe id="video" type="text/html" width="380" height="285" frameBorder="0"
-                         src="{{item.object.attachments.0.embed.url}}">
-                        </iframe>                 
+                        <google-youtube video-id="{{_getYoutubeVideoId(item.object.attachments.0.embed.url)}}" 
+                        width="380px" height="285px" ><google-youtube>
                       </template>
 
                       <!-- post photo attachment (if any) -->
@@ -484,6 +486,11 @@ Example:
         page_timestamp: {
           type: Number,
           value: 0
+        },
+        // (one month = 2678400000 millis)
+        millis_range_timestamp: {
+          type: Number,
+          value: 604800000 //One week
         }, 
         last_retrieved_posts: {
           type: Object,
@@ -519,8 +526,7 @@ Example:
         }
       }
       if(!found)
-        this.push('last_retrieved_posts' ,last_post_details);
-      console.log(this.last_retrieved_posts);     
+        this.push('last_retrieved_posts' ,last_post_details);    
     },
     
     _obtainNextPagePost: function (user_id, last_post_timestamp, last_post_nextPageToken){
@@ -595,8 +601,8 @@ Example:
       // loading resources, etc).      
       if (this.token) {
         var actual_tmp = new Date();
-        //We set the timestamp per page to one month (one month = 2678400000 millis)
-        this.page_timestamp = actual_tmp.getTime() - 2678400000;
+        //We set the timestamp per page to a specified range of time
+        this.page_timestamp = actual_tmp.getTime() - this.millis_range_timestamp;
         //We set the headers for the Google API requests
         this.$.requestFollowing.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
         this.$.requestPosts.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
@@ -613,7 +619,7 @@ Example:
     
     _loadMorePosts: function () {
       // We decrement the page_timestamp (we will show posts from a longer published date)
-      this.set('page_timestamp', this.page_timestamp - 2678400000);
+      this.set('page_timestamp', this.page_timestamp - this.millis_range_timestamp);
       // First, we search for posts suitable to be shown in the auxiliar object
       // of posts not shown from previous requests
       user_post = {}
@@ -734,6 +740,16 @@ Example:
       return item.verb === "share";
     },
 
+    /* Function getYoutubeVideoId: obtain the youtube video id from an url
+    corresponding to the embed video link that returns Google+ API for a
+    video attachment.
+    */
+    _getYoutubeVideoId: function (youtube_embed_url){
+      splitted_url = youtube_embed_url.split("/");
+      // We remove the query params that may appear on the youtube embed url
+      video_id = splitted_url[4].split("?");
+      return video_id[0];
+    },
     /* Function _getCaptionDimensions: Adjusts the dimensions of album captions.
     Given an index inside the album caption List, the function returns a fixed 
     dimension, depending of the image role in the camption collage (main, secondary) */
