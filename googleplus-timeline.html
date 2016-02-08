@@ -632,18 +632,15 @@ Example:
       // of posts not shown from previous requests
       //Auxiliary vars
       user_post = {}
-      //We'll use a copy of the object to iterate over it since we delete elements from the array 
-      //(indexes and length change when we delete an element from an array)
-      next_posts_copy = this.next_timeline_posts;
-      original_index = 0; //Represents the index to iterate over the this.next_timeline_post object
-      for(i=0; i < next_posts_copy.length; i++){
-        user_post = next_posts_copy[i];
+      while(i < this.next_timeline_posts.length){
+        user_post = this.next_timeline_posts[i];
         if(user_post.published >= this.page_timestamp){
           this.push('timeline_posts', user_post);
-          this.splice('next_timeline_posts', original_index, 1);
+          this.splice('next_timeline_posts', i, 1);
         }else
-          original_index++;
+          i++;
       }
+      
       //Then, we check if we have all the posts of every user in the desired range of time
       last_post_details = {};
       for(i=0; i<this.last_retrieved_posts.length; i++){
