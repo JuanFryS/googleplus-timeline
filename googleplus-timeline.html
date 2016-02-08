@@ -550,12 +550,14 @@ Example:
     _updateTimelinePosts: function(user_post){
       // If the post was published inside the period fixed for the page, we add it to the 
       // list of post that are being showed to the user
-      if(user_post.published >= this.page_timestamp)
+      if(user_post.published >= this.page_timestamp){
         this.push('timeline_posts', user_post);
+      }
       // If the post was published previously, we insert it onto an auxiliar object
       //that holds the components that will be shown in the next pages
       else
         this.push('next_timeline_posts', user_post);
+      console.log(this.next_timeline_posts);
     },
 
     _responsePosts: function(event, detail){
@@ -628,13 +630,19 @@ Example:
       this.set('page_timestamp', this.page_timestamp - this.millis_range_timestamp);
       // First, we search for posts suitable to be shown in the auxiliar object
       // of posts not shown from previous requests
+      //Auxiliary vars
       user_post = {}
-      for(i=0; i<this.next_timeline_posts.length; i++){
-        user_post = this.next_timeline_posts[i];
+      //We'll use a copy of the object to iterate over it since we delete elements from the array 
+      //(indexes and length change when we delete an element from an array)
+      next_posts_copy = this.next_timeline_posts;
+      original_index = 0; //Represents the index to iterate over the this.next_timeline_post object
+      for(i=0; i < next_posts_copy.length; i++){
+        user_post = next_posts_copy[i];
         if(user_post.published >= this.page_timestamp){
           this.push('timeline_posts', user_post);
-          this.arrayDelete('next_timeline_posts', i);
-        }
+          this.splice('next_timeline_posts', original_index, 1);
+        }else
+          original_index++;
       }
       //Then, we check if we have all the posts of every user in the desired range of time
       last_post_details = {};
