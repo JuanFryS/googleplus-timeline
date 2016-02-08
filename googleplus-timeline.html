@@ -19,7 +19,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="bower_components/paper-material/paper-material.html">
 <link rel="import" href="bower_components/paper-button/paper-button.html">
 <link rel="import" href="bower_components/iron-image/iron-image.html">
-<link rel="import" href="bower_components/google-youtube/google-youtube.html">
+<!-- <link rel="import" href="bower_components/google-youtube/google-youtube.html"> -->
 
 <!--
 An element providing a solution to no problem in particular.
@@ -193,7 +193,9 @@ Example:
     #share_details a:hover{
       text-decoration: underline;
     }
-
+    #video_caption{
+      padding: 0px 0px 15px 15px;
+    }
     /* Post Footer styles */
     #stats_count{
       color: var(--google-grey-700);
@@ -329,7 +331,7 @@ Example:
                   </div>
 
                   <!-- BODY: text and details about the post itself -->
-                  <!-- post content -->
+                  <!-- shared post header -->
                   <template is="dom-if" if="{{_isSharedPost(item)}}">
                       <span id="share_details">
                         <a href="{{item.object.actor.url}}" target="_blank" id="original_post_author">{{item.object.actor.displayName}}</a> 
@@ -337,7 +339,11 @@ Example:
                       </span>
                   </template>
 
-                  <div class="text" inner-h-t-m-l="{{item.object.content}}"></div>
+                  <!-- post content -->
+                  <template is="dom-if" if="{{item.object.content}}">
+                    <div class="text" inner-h-t-m-l="{{item.object.content}}"></div>
+                  </template>
+                  
                   <!-- post attachments -->
                   <template is="dom-if" if="{{item.object.attachments}}">
                       <!-- <p>  
@@ -348,8 +354,14 @@ Example:
                       
                       <!-- post video attachment (if any) -->
                       <template is="dom-if" if="{{_hasVideoAttachment(item)}}">
-                        <google-youtube video-id="{{_getYoutubeVideoId(item.object.attachments.0.embed.url)}}" 
-                        width="380px" height="285px" ><google-youtube>
+                        <!-- <google-youtube video-id="{{_getYoutubeVideoId(item.object.attachments.0.embed.url)}}" 
+                        width="380px" height="285px" ><google-youtube> -->
+                        
+                        <a id="videoLink" href="{{item.object.attachments.0.url}}" target="_blank">
+                          <p id="article_title" class="post-link"> {{item.object.attachments.0.displayName}} </p>
+                          <p id="article_subtitle"> {{item.object.attachments.0.content}} </p>
+                          <img id="video_caption" src="{{item.object.attachments.0.image.url}}" width="380px" height="285px">
+                        </a>
                       </template>
 
                       <!-- post photo attachment (if any) -->
@@ -478,10 +490,13 @@ Example:
           reflectToAttribute: true,
           notify: true
         },
+        //Posts that will be displayed on the component
         timeline_posts: {
           type: Object,
           value: []
         },
+        //Represents the post retrieved for any user that cannot
+        //be displayed on the current page of the component
         next_timeline_posts: {
           type: Object,
           value: []
@@ -490,11 +505,18 @@ Example:
           type: Number,
           value: 0
         },
+        actual_page: {
+          type: Number,
+          value: 0
+        },
+        //Represents the desired range of time that will cover a specific page
         // (one month = 2678400000 millis)
         millis_range_timestamp: {
           type: Number,
           value: 604800000 //One week
         }, 
+        // Object that holds the post list nextpage to obtain about every user that the logged in user follows
+        //Also stores other necessary field like the timestamp of the last post retrieved 
         last_retrieved_posts: {
           type: Object,
           value: []
@@ -555,9 +577,9 @@ Example:
       }
       // If the post was published previously, we insert it onto an auxiliar object
       //that holds the components that will be shown in the next pages
-      else
+      else{
         this.push('next_timeline_posts', user_post);
-      console.log(this.next_timeline_posts);
+      }
     },
 
     _responsePosts: function(event, detail){
@@ -632,6 +654,7 @@ Example:
       // of posts not shown from previous requests
       //Auxiliary vars
       user_post = {}
+      i = 0;
       while(i < this.next_timeline_posts.length){
         user_post = this.next_timeline_posts[i];
         if(user_post.published >= this.page_timestamp){
@@ -640,7 +663,7 @@ Example:
         }else
           i++;
       }
-      
+
       //Then, we check if we have all the posts of every user in the desired range of time
       last_post_details = {};
       for(i=0; i<this.last_retrieved_posts.length; i++){
@@ -755,12 +778,13 @@ Example:
     corresponding to the embed video link that returns Google+ API for a
     video attachment.
     */
-    _getYoutubeVideoId: function (youtube_embed_url){
-      splitted_url = youtube_embed_url.split("/");
-      // We remove the query params that may appear on the youtube embed url
-      video_id = splitted_url[4].split("?");
-      return video_id[0];
-    },
+    // _getYoutubeVideoId: function (youtube_embed_url){
+    //   splitted_url = youtube_embed_url.split("/");
+    //   // We remove the query params that may appear on the youtube embed url
+    //   video_id = splitted_url[4].split("?");
+    //   return video_id[0];
+    // },
+
     /* Function _getCaptionDimensions: Adjusts the dimensions of album captions.
     Given an index inside the album caption List, the function returns a fixed 
     dimension, depending of the image role in the camption collage (main, secondary) */
