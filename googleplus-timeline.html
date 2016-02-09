@@ -140,6 +140,10 @@ Example:
     #video{
       padding-bottom: 15px;
     }
+    #video_caption{
+      width: 370px;
+      height: 278px;
+    } 
     .attached_photo{
       width: 380px;
       height: auto;
@@ -360,7 +364,7 @@ Example:
                         <a id="videoLink" href="{{item.object.attachments.0.url}}" target="_blank">
                           <p id="article_title" class="post-link"> {{item.object.attachments.0.displayName}} </p>
                           <p id="article_subtitle"> {{item.object.attachments.0.content}} </p>
-                          <img id="video_caption" src="{{item.object.attachments.0.image.url}}" width="380px" height="285px">
+                          <img id="video_caption" src="{{item.object.attachments.0.image.url}}">
                         </a>
                       </template>
 
