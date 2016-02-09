@@ -19,6 +19,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="bower_components/paper-material/paper-material.html">
 <link rel="import" href="bower_components/paper-button/paper-button.html">
 <link rel="import" href="bower_components/iron-image/iron-image.html">
+<!-- <link rel="import" href="bower_components/google-youtube/google-youtube.html"> -->
+
 <!--
 An element providing a solution to no problem in particular.
 
@@ -31,6 +33,7 @@ Example:
 @demo demo/index.html
 @hero hero.svg
 -->
+
 <dom-module id="googleplus-timeline">
 
     <style is="custom-style">
@@ -137,6 +140,10 @@ Example:
     #video{
       padding-bottom: 15px;
     }
+    #video_caption{
+      width: 370px;
+      height: 278px;
+    } 
     .attached_photo{
       width: 380px;
       height: auto;
@@ -190,7 +197,9 @@ Example:
     #share_details a:hover{
       text-decoration: underline;
     }
-
+    #video_caption{
+      padding: 0px 0px 15px 15px;
+    }
     /* Post Footer styles */
     #stats_count{
       color: var(--google-grey-700);
@@ -278,6 +287,14 @@ Example:
       border-style: solid;
       color: white;
     }
+    #loadMoreDiv{
+      padding-bottom: 10px;
+    }
+    #loadMoreButton{
+      background-color: #A9A9AA;
+      padding-bottom: 10px;
+      font-weight: bold;
+    }
     </style>
 
   <template id="template">
@@ -292,7 +309,6 @@ Example:
 
     <iron-ajax
                id="requestPosts"
-               url="{{request_posts_url}}"
                method="GET"
                handleAs='json'
                on-response="_responsePosts"
@@ -306,139 +322,155 @@ Example:
 
         <div class="content">
           <template is="dom-repeat" items="{{timeline_posts}}" sort="_sortPosts" >
-            <paper-material elevation="2" class="postShadow">
-              
+            <paper-material elevation="2" class="postShadow">   
               <!-- Google+ POST -->
-              <div class="post">
+                <div class="post">
 
-                <!-- HEADER: user's avatar, user identifier and time information -->
-                <div class="header horizontal layout">
-                  <a href="{{item.actor.url}}" target="_blank" class="header_text"><iron-icon src="{{item.actor.image.url}}" class="userAvatarPost"></iron-icon></a>
-                  <div class="flex name"><a href="{{item.actor.url}}" target="_blank" class="header_text"> {{item.actor.displayName}}</a>
+                  <!-- HEADER: user's avatar, user identifier and time information -->
+                  <div class="header horizontal layout">
+                    <a href="{{item.actor.url}}" target="_blank" class="header_text"><iron-icon src="{{item.actor.image.url}}" class="userAvatarPost"></iron-icon></a>
+                    <div class="flex name"><a href="{{item.actor.url}}" target="_blank" class="header_text"> {{item.actor.displayName}}</a>
+                    </div>
+                    <span class="date"><a href="{{item.url}}" target="_blank" class="header_text"> {{item.published_pretty}}</a></span>
                   </div>
-                  <span class="date"><a href="{{item.url}}" target="_blank" class="header_text"> {{item.published_pretty}}</a></span>
-                </div>
 
-                <!-- BODY: text and details about the post itself -->
-                  <!-- post content -->
+                  <!-- BODY: text and details about the post itself -->
+                  <!-- shared post header -->
                   <template is="dom-if" if="{{_isSharedPost(item)}}">
-                    <span id="share_details">
-                      <a href="{{item.object.actor.url}}" target="_blank" id="original_post_author">{{item.object.actor.displayName}}</a> 
-                      <a href="{{item.url}}" target="_blank" id="original-post-link"> has shared first:</a> 
-                    </span>
+                      <span id="share_details">
+                        <a href="{{item.object.actor.url}}" target="_blank" id="original_post_author">{{item.object.actor.displayName}}</a> 
+                        <a href="{{item.url}}" target="_blank" id="original-post-link"> has shared first:</a> 
+                      </span>
                   </template>
 
-                  <div class="text" inner-h-t-m-l="{{item.object.content}}"></div>
+                  <!-- post content -->
+                  <template is="dom-if" if="{{item.object.content}}">
+                    <div class="text" inner-h-t-m-l="{{item.object.content}}"></div>
+                  </template>
+                  
                   <!-- post attachments -->
                   <template is="dom-if" if="{{item.object.attachments}}">
-                    <!-- <p>  
-                    Video: {{_hasAttachment(item,'video')}}
-                    Photo: {{_hasAttachment(item,'photo')}}
-                    Article: {{_hasAttachment(item,'article')}}
-                    Album: {{_hasAttachment(item,'album')}}</p> -->
-                    <!-- post video attachment (if any) -->
-                    <template is="dom-if" if="{{_hasVideoAttachment(item)}}">
-                      <iframe id="video" type="text/html" width="380" height="285" frameBorder="0"
-                       src="{{item.object.attachments.0.embed.url}}">
-                      </iframe>                 
-                    </template>
-
-                    <!-- post photo attachment (if any) -->
-                    <template is="dom-if" if="{{_hasAttachment(item,'photo')}}">
-                      <span class="attached_photo_section">
-                        <a href="{{item.object.attachments.0.url}}" target="_blank" >
-                          <img class="attached_photo" src="{{item.object.attachments.0.image.url}}">
-                        </a>
-                      </span>
-                    </template>
-
-                    <!-- Link/article attachment (if any) -->
-                    <template is="dom-if" if="{{_hasAttachment(item,'article')}}">
-                      <p id="article_title" class="post-link"> {{item.object.attachments.0.displayName}} </p>
-                      <p id="article_subtitle"> {{item.object.attachments.0.content}} </p>
-                      <a href="{{item.object.attachments.0.url}}" target="_blank" >
-                        <template is="dom-if" if="{{item.object.attachments.0.image.url}}">
-                          <img class="attached_photo" src="{{item.object.attachments.0.image.url}}">
-                        </template>
-                      </a>
-                    </template>
-
-                    <!-- Album attachment (if any) -->
-                    <template is="dom-if" if="{{_hasAttachment(item,'album')}}">
-                      <!-- Shows up to 4 captions of the album -->
-                      <div id="albumContainer">
-                        <div id="title_container">
-                          <a href="{{item.object.attachments.0.url}}" id="album_title" target="_blank">{{item.object.attachments.0.displayName}}</a>
-                        </div>
-
-                        <!-- Main photo -->
-                        <div class="horizontal layout wrap" style="width:380px">
-                            
-                          <template is="dom-if" if="{{item.object.attachments.0.thumbnails.0.url}}">
-                            <a href="{{item.object.attachments.0.thumbnails.0.url}}" target="_blank">
-                              <div class=" album_caption1" 
-                              style$="background-image: url('{{item.object.attachments.0.thumbnails.0.image.url}}');
-                              height:{{_getCaptionDimensions(0,item)}}; 
-                              width:{{_getCaptionDimensions(0,item)}};" >
-                              </div>
-                            </a>
-                          </template>
+                      <!-- <p>  
+                      Video: {{_hasAttachment(item,'video')}}
+                      Photo: {{_hasAttachment(item,'photo')}}
+                      Article: {{_hasAttachment(item,'article')}}
+                      Album: {{_hasAttachment(item,'album')}}</p> -->
+                      
+                      <!-- post video attachment (if any) -->
+                      <template is="dom-if" if="{{_hasVideoAttachment(item)}}">
+                        <!-- <google-youtube video-id="{{_getYoutubeVideoId(item.object.attachments.0.embed.url)}}" 
+                        width="380px" height="285px" ><google-youtube> -->
                         
-                          <!-- Secondary photo(s) -->                      
-                          <div class="vertical layout secondary imgContainer">
-                            <!-- Second photo (if any) -->
-                            <template is="dom-if" if="{{item.object.attachments.0.thumbnails.1.url}}">
-                              <a href="{{item.object.attachments.0.thumbnails.1.url}}" target="_blank">
-                                <div class="album_caption2" 
-                                style$="background-image: url('{{item.object.attachments.0.thumbnails.1.image.url}}');
-                                height:{{_getCaptionDimensions(1,item)}}; 
-                                width:{{_getCaptionDimensions(1,item)}};">
-                                </div>
-                              </a>
-                            </template>
+                        <a id="videoLink" href="{{item.object.attachments.0.url}}" target="_blank">
+                          <p id="article_title" class="post-link"> {{item.object.attachments.0.displayName}} </p>
+                          <p id="article_subtitle"> {{item.object.attachments.0.content}} </p>
+                          <img id="video_caption" src="{{item.object.attachments.0.image.url}}">
+                        </a>
+                      </template>
 
-                            <!-- Third photo (if any) -->
-                            <template is="dom-if" if="{{item.object.attachments.0.thumbnails.2.url}}">
-                              <a href="{{item.object.attachments.0.thumbnails.2.url}}" target="_blank">
-                                <div class="album_caption3"
-                                style$="background-image: url('{{item.object.attachments.0.thumbnails.2.image.url}}');
-                                height:{{_getCaptionDimensions(2,item)}}; 
-                                width:{{_getCaptionDimensions(2,item)}};"> 
-                                </div>
-                              </a>
-                            </template>
+                      <!-- post photo attachment (if any) -->
+                      <template is="dom-if" if="{{_hasAttachment(item,'photo')}}">
+                        <span class="attached_photo_section">
+                          <a href="{{item.object.attachments.0.url}}" target="_blank" >
+                            <img class="attached_photo" src="{{item.object.attachments.0.image.url}}">
+                          </a>
+                        </span>
+                      </template>
 
-                            <!-- Fourth photo (if any) -->
-                            <template is="dom-if" if="{{item.object.attachments.0.thumbnails.3.url}}">
-                              <a href="{{item.object.attachments.0.thumbnails.3.url}}" target="_blank">
-                                <div class="album_caption4"
-                                style$="background-image: url('{{item.object.attachments.0.thumbnails.3.image.url}}');
-                                height:{{_getCaptionDimensions(3,item)}}; 
-                                width:{{_getCaptionDimensions(3,item)}};"> 
-                                </div>
-                              </a>
-                            </template>
+                      <!-- Link/article attachment (if any) -->
+                      <template is="dom-if" if="{{_hasAttachment(item,'article')}}">
+                        <p id="article_title" class="post-link"> {{item.object.attachments.0.displayName}} </p>
+                        <p id="article_subtitle"> {{item.object.attachments.0.content}} </p>
+                        <a href="{{item.object.attachments.0.url}}" target="_blank" >
+                          <template is="dom-if" if="{{item.object.attachments.0.image.url}}">
+                            <img class="attached_photo" src="{{item.object.attachments.0.image.url}}">
+                          </template>
+                        </a>
+                      </template>
+
+                      <!-- Album attachment (if any) -->
+                      <template is="dom-if" if="{{_hasAttachment(item,'album')}}">
+                        <!-- Shows up to 4 captions of the album -->
+                        <div id="albumContainer">
+                          <div id="title_container">
+                            <a href="{{item.object.attachments.0.url}}" id="album_title" target="_blank">{{item.object.attachments.0.displayName}}</a>
                           </div>
-                        </div>
-                      </div>  
-                    </template>
+
+                          <!-- Album Layout -->
+                          <div class="horizontal layout wrap" style="width:380px">  
+                            <!-- Main photo -->
+                            <template is="dom-if" if="{{item.object.attachments.0.thumbnails.0.url}}">
+                              <a href="{{item.object.attachments.0.thumbnails.0.url}}" target="_blank">
+                                <div class=" album_caption1" 
+                                style$="background-image: url('{{item.object.attachments.0.thumbnails.0.image.url}}');
+                                height:{{_getCaptionDimensions(0,item)}}; 
+                                width:{{_getCaptionDimensions(0,item)}};" >
+                                </div>
+                              </a>
+                            </template>
+                          
+                            <!-- Secondary photo(s) -->                      
+                            <div class="vertical layout secondary imgContainer">
+                              <!-- Second photo (if any) -->
+                              <template is="dom-if" if="{{item.object.attachments.0.thumbnails.1.url}}">
+                                <a href="{{item.object.attachments.0.thumbnails.1.url}}" target="_blank">
+                                  <div class="album_caption2" 
+                                  style$="background-image: url('{{item.object.attachments.0.thumbnails.1.image.url}}');
+                                  height:{{_getCaptionDimensions(1,item)}}; 
+                                  width:{{_getCaptionDimensions(1,item)}};">
+                                  </div>
+                                </a>
+                              </template>
+
+                              <!-- Third photo (if any) -->
+                              <template is="dom-if" if="{{item.object.attachments.0.thumbnails.2.url}}">
+                                <a href="{{item.object.attachments.0.thumbnails.2.url}}" target="_blank">
+                                  <div class="album_caption3"
+                                  style$="background-image: url('{{item.object.attachments.0.thumbnails.2.image.url}}');
+                                  height:{{_getCaptionDimensions(2,item)}}; 
+                                  width:{{_getCaptionDimensions(2,item)}};"> 
+                                  </div>
+                                </a>
+                              </template>
+
+                              <!-- Fourth photo (if any) -->
+                              <template is="dom-if" if="{{item.object.attachments.0.thumbnails.3.url}}">
+                                <a href="{{item.object.attachments.0.thumbnails.3.url}}" target="_blank">
+                                  <div class="album_caption4"
+                                  style$="background-image: url('{{item.object.attachments.0.thumbnails.3.image.url}}');
+                                  height:{{_getCaptionDimensions(3,item)}}; 
+                                  width:{{_getCaptionDimensions(3,item)}};"> 
+                                  </div>
+                                </a>
+                              </template>
+                            </div>
+                          </div>
+                        </div>  
+                      </template>
                   </template>
 
-                <!-- FOOTER: info about #+1's and #replies to the post -->
-                <div id="likeContainer">
-                  <!-- #Plus to the post-->
-                  <iron-icon class="share_icon" icon="add"></iron-icon> 
-                  <span id="stats_count">{{item.object.plusoners.totalItems}}</span>
-                  <!-- #Replies to the post-->
-                  <iron-icon class="share_icon" icon="reply"></iron-icon> 
-                  <span id="stats_count">{{item.object.replies.totalItems}}</span>
-                  <!-- #Shares of the post-->
-                  <iron-icon class="share_icon" icon="social:share"></iron-icon> 
-                  <span id="stats_count">{{item.object.resharers.totalItems}}</span>
-            </div>
-              </div>
+                  <!-- FOOTER: info about #+1's and #replies to the post -->
+                  <div id="likeContainer">
+                    <!-- #Plus to the post-->
+                    <iron-icon class="share_icon" icon="add"></iron-icon> 
+                    <span id="stats_count">{{item.object.plusoners.totalItems}}</span>
+                    <!-- #Replies to the post-->
+                    <iron-icon class="share_icon" icon="reply"></iron-icon> 
+                    <span id="stats_count">{{item.object.replies.totalItems}}</span>
+                    <!-- #Shares of the post-->
+                    <iron-icon class="share_icon" icon="social:share"></iron-icon> 
+                    <span id="stats_count">{{item.object.resharers.totalItems}}</span>
+                  </div>
+                
+                </div> <!-- END OF POST -->
             </paper-material>
           </template>
+          <!-- "Load More" button -->
+          <!-- <template is="dom-if" if="{{_thereAreMorePosts()}}"> TODO: FIXME-->
+            <div on-click="_loadMorePosts" class="horizontal center-justified layout" id="loadMoreDiv">
+            <paper-button id="loadMoreButton">LOAD MORE</paper-button>
+            </div>
+          <!-- </template> -->
         </div>
       </paper-header-panel>
   </template>
@@ -462,51 +494,125 @@ Example:
           reflectToAttribute: true,
           notify: true
         },
-
+        //Posts that will be displayed on the component
         timeline_posts: {
           type: Object,
           value: []
         },
-
-        following_user_id: {
-          type: String,
-          value: ""
-        },
-
-        request_posts_url: {
-          type: String,
-          computed: "_getRequestPostsURL(following_user_id)"
+        //Represents the post retrieved for any user that cannot
+        //be displayed on the current page of the component
+        next_timeline_posts: {
+          type: Object,
+          value: []
         },
         page_timestamp: {
           type: Number,
           value: 0
+        },
+        actual_page: {
+          type: Number,
+          value: 0
+        },
+        //Represents the desired range of time that will cover a specific page
+        // (one month = 2678400000 millis)
+        millis_range_timestamp: {
+          type: Number,
+          value: 604800000 //One week
+        }, 
+        // Object that holds the post list nextpage to obtain about every user that the logged in user follows
+        //Also stores other necessary field like the timestamp of the last post retrieved 
+        last_retrieved_posts: {
+          type: Object,
+          value: []
         }
+
     },
 
     _responseFollowings: function(event, detail){
       //We generate an ajax request to get the post published by the authenticated user
-      this.following_user_id = "me";
+      this.$.requestPosts.setAttribute("url", this._getRequestPostsURL("me"));
       this.$.requestPosts.generateRequest();
       //We generate an ajax request for each user that the authenticated user follows 
       for (i=0;i<detail.response.items.length;i++) {
-        this.following_user_id = detail.response.items[i].id;
+        user_id = detail.response.items[i].id;
+        this.$.requestPosts.setAttribute("url", this._getRequestPostsURL(user_id));
         this.$.requestPosts.generateRequest();
       }
     },
 
     _getRequestPostsURL: function(user_id){
-      return "https://www.googleapis.com/plus/v1/people/" + user_id + "/activities/public"
+      return "https://www.googleapis.com/plus/v1/people/" + user_id + "/activities/public";
+    },
+
+    _updateLastRetrievedPosts: function(last_post_details){
+      // We add the timestamp of the last post retrieved along with its author to an auxiliary variable
+      found = false;
+      for(i=0; i < this.last_retrieved_posts.length && !found;i++){
+        if(this.last_retrieved_posts[i].author === last_post_details.author){
+          found = true;
+          this.set('last_retrieved_posts.' + i + '.timestamp', last_post_details.timestamp);
+          this.set('last_retrieved_posts.' + i + '.nextPageToken', last_post_details.nextPageToken); 
+        }
+      }
+      if(!found)
+        this.push('last_retrieved_posts' ,last_post_details);
+    },
+    
+    _obtainNextPagePost: function (user_id, last_post_timestamp, last_post_nextPageToken){
+      // We check if the last user post returned is previous to the page_timestamp (posts that will be displayed on the first page)
+      // If it is, we'll request the following post from the user until we've reached the reference timestamp for the actual "page"
+      // that displays the component
+      if(last_post_timestamp > this.page_timestamp && (typeof last_post_nextPageToken) != 'undefined'){
+        //We set the next page param in the next request
+        request_params = {"pageToken": last_post_nextPageToken};
+        this.$.requestPosts.setAttribute("url", this._getRequestPostsURL(user_id));
+        this.$.requestPosts.setAttribute("params", JSON.stringify(request_params));
+        this.$.requestPosts.generateRequest();
+       }
+    },
+    
+    //Function _updateTimelinePosts: Check if the post was published inside the period of time
+    // of post expected to be shown by the component
+    _updateTimelinePosts: function(user_post){
+      // If the post was published inside the period fixed for the page, we add it to the 
+      // list of post that are being showed to the user
+      if(user_post.published >= this.page_timestamp){
+        this.push('timeline_posts', user_post);
+      }
+      // If the post was published previously, we insert it onto an auxiliar object
+      //that holds the components that will be shown in the next pages
+      else{
+        this.push('next_timeline_posts', user_post);
+      }
     },
 
     _responsePosts: function(event, detail){
-      //Append all user posts to the user timeline 
-      for(i=0; i<detail.response.items.length; i++){
-        this.push('timeline_posts', detail.response.items[i]);
-        //We transform datestamps to a more manageable format of every post received
-        this._changeTime(this.timeline_posts.length - 1);
-        // console.log(this.timeline_posts[i]);
+      // We reset the params field for the next request of requestPost iron-ajax 
+      this.$.requestPosts.setAttribute("params", '{}');
+      
+      //Appends all user posts to the user timeline 
+      user_posts = detail.response.items;
+      // If the user hasn't posted anything yet, we just ignore it
+      if(user_posts.length != 0){
+        for(i=0; i< user_posts.length; i++){
+          //We transform timestamps to a more manageable format of every post received (published and updated fields)
+          user_posts[i] = this._changeTime(user_posts[i]);
+          // We insert the post into the timeline that holds all posts that will be displayed to the user
+          // (If the published date for the post is in the period of time that shows the actual page of the component)
+          this._updateTimelinePosts(user_posts[i]);
+        }
+
+        last_post_details = { "author": user_posts[user_posts.length-1].actor.id,
+                      "displayName": user_posts[user_posts.length-1].actor.displayName,
+                      "timestamp": user_posts[user_posts.length-1].published,
+                      "nextPageToken": detail.response.nextPageToken};
+        
+        //We update the param that holds the relative fields about the last post retrieved and basic author info
+        this._updateLastRetrievedPosts(last_post_details);
+
+        // We obtain the next page for the user_posts, in order to obtain all the post in a given period (specified by page_timestamp)
+        this._obtainNextPagePost(last_post_details.author, last_post_details.timestamp, last_post_details.nextPageToken);    
       }
-            
     },
 
     // Element Lifecycle
@@ -526,12 +632,15 @@ Example:
       //
       // This is a good place to perform any work related to your element's
       // visual state or active behavior (measuring sizes, beginning animations,
-      // loading resources, etc).
+      // loading resources, etc).      
       if (this.token) {
-          // We set the timestamp
-          this.$.requestFollowing.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
-          this.$.requestPosts.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
-          this.$.requestFollowing.generateRequest();
+        var actual_tmp = new Date();
+        //We set the timestamp per page to a specified range of time
+        this.page_timestamp = actual_tmp.getTime() - this.millis_range_timestamp;
+        //We set the headers for the Google API requests
+        this.$.requestFollowing.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
+        this.$.requestPosts.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
+        this.$.requestFollowing.generateRequest();
         }
     },
 
@@ -541,25 +650,53 @@ Example:
       //
       // Use this to clean up anything you did in `attached`.
     },
+    
+    _loadMorePosts: function () {
+      // We decrement the page_timestamp (we will show posts from a longer published date)
+      this.set('page_timestamp', this.page_timestamp - this.millis_range_timestamp);
+      // First, we search for posts suitable to be shown in the auxiliar object
+      // of posts not shown from previous requests
+      //Auxiliary vars
+      user_post = {}
+      i = 0;
+      while(i < this.next_timeline_posts.length){
+        user_post = this.next_timeline_posts[i];
+        if(user_post.published >= this.page_timestamp){
+          this.push('timeline_posts', user_post);
+          this.splice('next_timeline_posts', i, 1);
+        }else
+          i++;
+      }
+
+      //Then, we check if we have all the posts of every user in the desired range of time
+      last_post_details = {};
+      for(i=0; i<this.last_retrieved_posts.length; i++){
+        // We obtain the next page for the user_posts, in order to obtain all the post in a given period (specified by page_timestamp)
+        last_post_details = this.last_retrieved_posts[i];
+        this._obtainNextPagePost(last_post_details.author, last_post_details.timestamp, last_post_details.nextPageToken);    
+      }
+
+    },
 
     /**
     * Convert a given posts timestamp of post lists to a human readable date
     *
     */
-    _changeTime: function(index){
-      var date = new Date(this.timeline_posts[index].published);
-      var updated_date = new Date(this.timeline_posts[index].updated)
+    _changeTime: function(post){
+      updated_post = post;
+      var date = new Date(post.published);
+      var updated_date = new Date(post.updated)
       var current_date = new Date();
       var time;
       var month = ["jan","feb","mar","apr", "may","jun","jul","aug","sep","oct","nov","dec"];
       /* Years*/
       if ((current_date.getFullYear() - date.getFullYear()) != 0) {
         var dif = current_date.getFullYear() - date.getFullYear()
-        time = date.getDate()+" "+month[date.getMonth()] + ". "+ date.getFullYear();
+        time = date.getDate() + " " + month[date.getMonth()] + ". "+ date.getFullYear();
       /* Months */
       } else if ((current_date.getMonth() - date.getMonth()) != 0) { 
         var dif = current_date.getMonth() - date.getMonth();
-        time = date.getDate()+" "+month[date.getMonth()] + ". "+ date.getFullYear();
+        time = date.getDate() + " "+ month[date.getMonth()] + ". "+ date.getFullYear();
       /* Days */
       } else if((current_date.getDate() - date.getDate()) == 0 ){
         if((current_date.getHours() - date.getHours()) == 0 ){
@@ -591,12 +728,17 @@ Example:
       else{
         time = date.getDate()+" "+month[date.getMonth()] + ". "+ date.getFullYear();
       }
-      // 
-      this.set("timeline_posts." + index + ".published_pretty", time);
-      this.set("timeline_posts." + index + ".published", date.getTime());
-      this.set("timeline_posts." + index + ".updated", updated_date.getTime());
+      // We change the timestamps to millis UTC and we create a fielf that represents the published
+      // date in a readably format
+      // this.set("timeline_posts." + index + ".published_pretty", time);
+      // this.set("timeline_posts." + index + ".published", date.getTime());
+      // this.set("timeline_posts." + index + ".updated", updated_date.getTime());
+      
+      updated_post.published_pretty = time;
+      updated_post.published = date.getTime();
+      updated_post.updated= updated_date.getTime();
+      return updated_post;
     },
-
 
     _sortPosts: function(post1, post2) {
       if (post1.published == post2.published)
@@ -605,7 +747,19 @@ Example:
         return post1.published > post2.published ? -1 : 1;
     },
 
-    // Auxiliar functions for dom-if conditions
+    // AUXILIAR FUNCTIONS FOR DOM-IF CONDITIONS 
+    
+    // _thereAreMorePosts: function(){ //TODO: FIXME
+    //   // Checks if there are remaining pages to be obtained from any user
+    //   remainingPages = false;
+    //   console.log(this.last_retrieved_posts);
+    //   for(i=0; i< this.last_retrieved_posts.length && !remainingPages; i++){
+    //     if(typeof this.last_retrieved_posts[i].nextPageToken != undefined){
+    //       remainingPages = true;
+    //     }
+    //   }
+    //   return (this.next_timeline_posts.length != 0) || (remainingPages != 0);
+    // },
 
     _hasAttachment: function(item, attachmentType){
       // if (item.object.attachments[0].objectType === "article"){
@@ -624,9 +778,20 @@ Example:
       return item.verb === "share";
     },
 
-    /* Adjusts the dimensions of album captions. Given an index inside the
-    album caption List, the function returns a fixed dimension, depending 
-    of the image role in the camption collage (main, secondary) */
+    /* Function getYoutubeVideoId: obtain the youtube video id from an url
+    corresponding to the embed video link that returns Google+ API for a
+    video attachment.
+    */
+    // _getYoutubeVideoId: function (youtube_embed_url){
+    //   splitted_url = youtube_embed_url.split("/");
+    //   // We remove the query params that may appear on the youtube embed url
+    //   video_id = splitted_url[4].split("?");
+    //   return video_id[0];
+    // },
+
+    /* Function _getCaptionDimensions: Adjusts the dimensions of album captions.
+    Given an index inside the album caption List, the function returns a fixed 
+    dimension, depending of the image role in the camption collage (main, secondary) */
     _getCaptionDimensions: function(image_index,item){
       dimension = "0px";
       main_photo = (image_index == 0);
@@ -670,7 +835,7 @@ Example:
             dimension = "86px";
         }
       }
-      console.log("Main caption: " + main_photo + " dimension: " + dimension + ". N. fotos: " + album_captions_length);
+      // console.log("Main caption: " + main_photo + " dimension: " + dimension + ". N. fotos: " + album_captions_length);
       return dimension;
     },
 
