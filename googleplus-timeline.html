@@ -13,6 +13,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="bower_components/iron-icons/social-icons.html">
+<link rel="import" href="bower_components/iron-icons/av-icons.html">
+<link rel="import" href="bower_components/iron-icons/image-icons.html">
 
 <link rel="import" href="bower_components/iron-flex-layout/classes/iron-flex-layout.html">
 <link rel="import" href="bower_components/paper-styles/paper-styles.html">
@@ -137,10 +139,17 @@ Example:
       padding: 0px 15px 15px 15px;
     }
     /* Attachment styles */
+    .media_icon{
+      width: 15px;
+      height: 15px;
+      padding-left: 10px;
+    }
+
     #video_container{
       border-style: solid;
       border-width: 1px;
       border-color: #BDBDBD; 
+      margin-bottom: 15px;
     }
 
     #video{
@@ -148,27 +157,43 @@ Example:
     }
 
     #video_caption{
-      width: 200px;
-      height: 150px;
-      padding: 0px 0px 15px 15px;
+      width: 100px;
+      height: 75px;
+      border: 1px;
+      border-color: #BDBDBD;
+      padding: 2px 5px 0px 5px;
     }
 
     #video_title{
       font: normal 13px Roboto,arial,sans-serif;
       font-weight: normal;
       margin-top: 0px;
+      padding-top: 5px;
       margin-bottom: 8px;
-      font-size: 14px;
-      padding-left: 15px;
+      font-size: 15px;
       text-decoration: none;
       color: #404040;
+      display: inline;
+      float: right;
+      width: 70%;
+      vertical-align: middle;
+    }
+    #video_title:hover{
+      color: #1976D2;
     } 
+
     .attached_photo{
       width: 380px;
       height: auto;
       padding: 0px 15px 15px 15px;
     }
 
+    #article_container{
+      border-style: solid;
+      border-width: 1px;
+      border-color: #BDBDBD; 
+      
+    }
     #article_title{
       font: normal 13px Roboto,arial,sans-serif;
       font-weight: normal;
@@ -208,6 +233,7 @@ Example:
 
     #share_details{
       padding-left: 15px;
+      padding-bottom: 5px;
     }
     #share_details a{
       color: black;
@@ -217,22 +243,18 @@ Example:
       text-decoration: underline;
     }
 
-    #article_container{
-      border-style: solid;
-      border-width: 1px;
-      border-color: #E0E0E0; 
-    }
-
     /* Album and caption styles */
+    #album_title_container{
+      padding-bottom: 5px;
+    }
     #album_title{
-      color: black;
+      color: #404040;
       font-size: 14px;
-      font-weight: bold;
       padding-bottom: 10px; 
     }
 
     #album_title:hover{
-      color: black;
+      color: 1976D2;
       text-decoration: underline;
       font-size: 14px;
     }
@@ -328,10 +350,10 @@ Example:
                   <!-- BODY: text and details about the post itself -->
                   <!-- shared post header -->
                   <template is="dom-if" if="{{_isSharedPost(item)}}">
-                      <span id="share_details">
+                      <div id="share_details">
                         <a href="{{item.object.actor.url}}" target="_blank" id="original_post_author">{{item.object.actor.displayName}}</a> 
                         <a href="{{item.url}}" target="_blank" id="original-post-link"> has shared first:</a> 
-                      </span>
+                      </div>
                   </template>
 
                   <!-- post content -->
@@ -352,9 +374,15 @@ Example:
                         <!-- <google-youtube video-id="{{_getYoutubeVideoId(item.object.attachments.0.embed.url)}}" 
                         width="380px" height="285px" ><google-youtube> -->
                         <div id="video_container">
-                          <a id="videoLink" href="{{item.object.attachments.0.url}}" target="_blank">
-                            <p id="article_title" class="post-link"> {{item.object.attachments.0.displayName}} </p>
-                          <!--   <p id="article_subtitle"> {{item.object.attachments.0.content}} </p> -->
+                          <a id="video_title" href="{{item.object.attachments.0.url}}" target="_blank">
+                            
+                            <span>
+                              <p><iron-icon class="media_icon" icon="av:play-arrow"></iron-icon>
+                               {{item.object.attachments.0.displayName}}</p>
+                              <!-- <p id="article_subtitle"> {{item.object.attachments.0.content}} </p> -->
+                            </span>
+                          </a>
+                          <a href="{{item.object.attachments.0.url}}" target="_blank">
                             <img id="video_caption" src="{{item.object.attachments.0.image.url}}">
                           </a>
                         </div>
@@ -372,7 +400,7 @@ Example:
                       <!-- Link/article attachment (if any) -->
                       <template is="dom-if" if="{{_hasAttachment(item,'article')}}">
                         <div id="article_container">
-                          <p id="article_title" class="post-link"> {{item.object.attachments.0.displayName}} </p>
+                          <p id="article_title" class="post-link"> <iron-icon class="media_icon" icon="av:web"></iron-icon> {{item.object.attachments.0.displayName}} </p>
                           <p id="article_subtitle"> {{item.object.attachments.0.content}} </p>
                           <a href="{{item.object.attachments.0.url}}" target="_blank" >
                             <template is="dom-if" if="{{item.object.attachments.0.image.url}}">
@@ -386,7 +414,8 @@ Example:
                       <template is="dom-if" if="{{_hasAttachment(item,'album')}}">
                         <!-- Shows up to 4 captions of the album -->
                         <div id="albumContainer">
-                          <div id="title_container">
+                          <div id="album_title_container">
+                            <iron-icon class="media_icon" icon="image:photo-album"></iron-icon>
                             <a href="{{item.object.attachments.0.url}}" id="album_title" target="_blank">{{item.object.attachments.0.displayName}}</a>
                           </div>
 
