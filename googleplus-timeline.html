@@ -139,23 +139,25 @@ Example:
       padding: 0px 15px 15px 15px;
     }
     /* Attachment styles */
+    
     .media_icon{
       width: 15px;
       height: 15px;
-      padding-left: 10px;
-    }
-
-    #video_container{
-      border-style: solid;
-      border-width: 1px;
-      border-color: #BDBDBD; 
-      margin-bottom: 15px;
+      /*padding-left: 10px;*/
     }
 
     #video{
       padding-bottom: 15px;
     }
 
+    .attachment_box_container{
+      border-style: solid;
+      border-width: 1px;
+      border-color: #BDBDBD;
+      margin-bottom: 15px;
+      margin-left: 13px;
+      
+    }
     #video_caption{
       width: 100px;
       height: 75px;
@@ -188,21 +190,14 @@ Example:
       padding: 0px 15px 15px 15px;
     }
 
-    #article_container{
-      border-style: solid;
-      border-width: 1px;
-      border-color: #BDBDBD; 
-      
-    }
     #article_title{
       font: normal 13px Roboto,arial,sans-serif;
       font-weight: normal;
-      margin-top: 0px;
-      margin-bottom: 8px;
       font-size: 16px;
       padding-left: 15px;
       text-decoration: none;
       color: #404040;
+      vertical-align: middle;
     }
     #article_subtitle{
       font: normal 12px Roboto,arial,sans-serif;
@@ -223,9 +218,9 @@ Example:
       font-weight: bold;
     }
 
-    .post:hover #article_title{
+    /*.post:hover #article_title{
       color: #1976D2;
-    }
+    }*/
     
     .post:hover #original-post-link{
       color: #1976D2;
@@ -248,15 +243,17 @@ Example:
       padding-bottom: 5px;
     }
     #album_title{
+      font: normal 13px Roboto,arial,sans-serif;
       color: #404040;
       font-size: 14px;
       padding-bottom: 10px; 
     }
 
     #album_title:hover{
-      color: 1976D2;
-      text-decoration: underline;
+      color: #1976D2;
       font-size: 14px;
+      text-decoration: underline;
+      cursor: auto;
     }
     #albumContainer{
       padding: 0px 15px 15px 15px;
@@ -373,9 +370,8 @@ Example:
                       <template is="dom-if" if="{{_hasVideoAttachment(item)}}">
                         <!-- <google-youtube video-id="{{_getYoutubeVideoId(item.object.attachments.0.embed.url)}}" 
                         width="380px" height="285px" ><google-youtube> -->
-                        <div id="video_container">
-                          <a id="video_title" href="{{item.object.attachments.0.url}}" target="_blank">
-                            
+                        <div class="attachment_box_container">
+                          <a id="video_title" href="{{item.object.attachments.0.url}}" target="_blank">                            
                             <span>
                               <p><iron-icon class="media_icon" icon="av:play-arrow"></iron-icon>
                                {{item.object.attachments.0.displayName}}</p>
@@ -399,11 +395,11 @@ Example:
 
                       <!-- Link/article attachment (if any) -->
                       <template is="dom-if" if="{{_hasAttachment(item,'article')}}">
-                        <div id="article_container">
+                        <div class="attachment_box_container">
                           <p id="article_title" class="post-link"> <iron-icon class="media_icon" icon="av:web"></iron-icon> {{item.object.attachments.0.displayName}} </p>
                           <p id="article_subtitle"> {{item.object.attachments.0.content}} </p>
                           <a href="{{item.object.attachments.0.url}}" target="_blank" >
-                            <template is="dom-if" if="{{item.object.attachments.0.image.url}}">
+                            <template is="dom-if" if="{{_hasArticleCaption(item)}}">
                               <img class="attached_photo" src="{{item.object.attachments.0.image.url}}">
                             </template>
                           </a>
@@ -415,8 +411,10 @@ Example:
                         <!-- Shows up to 4 captions of the album -->
                         <div id="albumContainer">
                           <div id="album_title_container">
-                            <iron-icon class="media_icon" icon="image:photo-album"></iron-icon>
-                            <a href="{{item.object.attachments.0.url}}" id="album_title" target="_blank">{{item.object.attachments.0.displayName}}</a>
+                            <a href="{{item.object.attachments.0.url}}" id="album_title" target="_blank">
+                              <iron-icon class="media_icon" icon="image:photo-album"></iron-icon>
+                              {{item.object.attachments.0.displayName}}
+                            </a>
                           </div>
 
                           <!-- Album Layout -->
@@ -796,6 +794,11 @@ Example:
     _hasVideoAttachment: function(item){
       return item.object.attachments[0].objectType === 'video'
       && item.object.attachments[0].hasOwnProperty('embed');
+    },
+
+    _hasArticleCaption: function(item){
+      console.log(item.object.attachments[0].image.width);
+      return item.object.attachments[0].image.url && item.object.attachments[0].image.width > 380;
     },
 
     _isSharedPost: function(item){
