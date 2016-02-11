@@ -324,11 +324,19 @@ Example:
                >
     </iron-ajax>
 
+    <iron-ajax
+               id="requestUpdatedPosts"
+               method="GET"
+               handleAs='json'
+               on-response="_responseUpdatedPosts"
+               >
+    </iron-ajax>
+
       <paper-header-panel mode="waterfall" class="red">
         <div class="paper-header">
           <div>
           <b>Google+</b>
-          <paper-icon-button id="refresh_button" icon="refresh" title="refresh" on-click="refresh_posts">
+          <paper-icon-button id="refresh_button" icon="refresh" title="refresh" on-click="_refresh_posts">
           </paper-icon-button>
           </div>
         </div>
@@ -652,6 +660,10 @@ Example:
       }
     },
 
+    _responseUpdatedPosts: function(event, detail){
+      console.log(detail.response);
+    },
+
     // Element Lifecycle
 
     ready: function() {
@@ -690,7 +702,21 @@ Example:
     
     // ACTION FUNCTIONS FOR BUTTONS 
     _refresh_posts: function(){
+      // We update the actual_timestamp param
+      //We set the timestamp per page to a specified range of time
+      var actual_tmp = new Date();
+      this.page_timestamp = actual_tmp.getTime() - this.millis_range_timestamp;
       
+      // For every user that the identified user follows (included her/himself)
+      // we check if any of them has published anything new, doing a conditional request
+      for(i=0; i < this.last_retrieved_page.length; i++){
+        user_page = this.last_retrieved_page[i];
+        conditional_header = {"If-None-Match": user_page.etag,
+                              "Authorization": "Bearer " + this.token};
+        this.$.requestUpdatedPosts.setAttribute("headers", JSON.stringify(conditional_header));
+        this.$.requestUpdatedPosts.setAttribute("url", this._getRequestPostsURL(user_page.author));
+        this.$.requestUpdatedPosts.generateRequest();
+      }
     },
 
     _loadMorePosts: function () {
