@@ -15,6 +15,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="bower_components/iron-icons/social-icons.html">
 <link rel="import" href="bower_components/iron-icons/av-icons.html">
 <link rel="import" href="bower_components/iron-icons/image-icons.html">
+<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="bower_components/iron-flex-layout/classes/iron-flex-layout.html">
 <link rel="import" href="bower_components/paper-styles/paper-styles.html">
@@ -47,6 +48,7 @@ Example:
       color:#2e2e2e;
     }
 
+    /* Header styles */
     paper-header-panel {
       width: var(--google-events-width);
       height: var(--google-events-height);
@@ -74,6 +76,12 @@ Example:
       font-weight: bold;
       font-size: 1.3em;
     }
+
+    #refresh_button{
+      float: right;
+      margin-top: 8px;
+    }
+    /* Post styles */
     .post {
       min-height: 100px;
       padding: 8px;
@@ -156,7 +164,8 @@ Example:
       border-color: #BDBDBD;
       margin-bottom: 15px;
       margin-left: 13px;
-      
+      width: 380px;
+      height: auto;
     }
     #video_caption{
       width: 100px;
@@ -167,12 +176,10 @@ Example:
     }
 
     #video_title{
-      font: normal 13px Roboto,arial,sans-serif;
-      font-weight: normal;
+      font: normal 15px Roboto,arial,sans-serif;
       margin-top: 0px;
-      padding-top: 5px;
       margin-bottom: 8px;
-      font-size: 15px;
+      padding-top: 5px;
       text-decoration: none;
       color: #404040;
       display: inline;
@@ -185,26 +192,21 @@ Example:
     } 
 
     .attached_photo{
-      width: 380px;
+      width: 360px;
       height: auto;
       padding: 0px 15px 15px 15px;
     }
 
     #article_title{
-      font: normal 13px Roboto,arial,sans-serif;
-      font-weight: normal;
-      font-size: 16px;
-      padding-left: 15px;
+      font: normal 15px Roboto, arial, sans-serif;
       text-decoration: none;
       color: #404040;
       vertical-align: middle;
     }
     #article_subtitle{
-      font: normal 12px Roboto,arial,sans-serif;
-      font-weight: normal;
+      font: normal 13px Roboto,arial,sans-serif;
       margin-top: 0px;
       margin-bottom: 10px;
-      font-size: 13px;
       padding-left: 15px;
       text-decoration: none;
       color: #757575; 
@@ -243,9 +245,8 @@ Example:
       padding-bottom: 5px;
     }
     #album_title{
-      font: normal 13px Roboto,arial,sans-serif;
+      font: normal 14px Roboto,arial,sans-serif;
       color: #404040;
-      font-size: 14px;
       padding-bottom: 10px; 
     }
 
@@ -325,9 +326,11 @@ Example:
 
       <paper-header-panel mode="waterfall" class="red">
         <div class="paper-header">
-          <div><b>Google+</b></div>
+          <div>
+          <b>Google+</b>
           <paper-icon-button id="refresh_button" icon="refresh" title="refresh" on-click="refresh_posts">
           </paper-icon-button>
+          </div>
         </div>
 
         <div class="content">
@@ -396,7 +399,8 @@ Example:
                       <!-- Link/article attachment (if any) -->
                       <template is="dom-if" if="{{_hasAttachment(item,'article')}}">
                         <div class="attachment_box_container">
-                          <p id="article_title" class="post-link"> <iron-icon class="media_icon" icon="av:web"></iron-icon> {{item.object.attachments.0.displayName}} </p>
+                          <a id="article_title" class="post-link" target="_blank" href="{{item.object.attachments.0.url}}">
+                           <iron-icon class="media_icon" icon="av:web"></iron-icon> {{item.object.attachments.0.displayName}} </a>
                           <p id="article_subtitle"> {{item.object.attachments.0.content}} </p>
                           <a href="{{item.object.attachments.0.url}}" target="_blank" >
                             <template is="dom-if" if="{{_hasArticleCaption(item)}}">
@@ -797,8 +801,7 @@ Example:
     },
 
     _hasArticleCaption: function(item){
-      console.log(item.object.attachments[0].image.width);
-      return item.object.attachments[0].image.url && item.object.attachments[0].image.width > 380;
+      return item.object.attachments[0].image.url && item.object.attachments[0].image.width > 360;
     },
 
     _isSharedPost: function(item){
