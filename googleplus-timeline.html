@@ -328,7 +328,7 @@ Example:
         <div class="paper-header">
           <div>
           <b>Google+</b>
-          <paper-icon-button id="refresh_button" icon="refresh" title="refresh" on-click="refresh_posts">
+          <paper-icon-button id="refresh_button" icon="refresh" title="refresh" on-click="_refresh_posts">
           </paper-icon-button>
           </div>
         </div>
@@ -400,7 +400,10 @@ Example:
                       <template is="dom-if" if="{{_hasAttachment(item,'article')}}">
                         <div class="attachment_box_container">
                           <a id="article_title" class="post-link" target="_blank" href="{{item.object.attachments.0.url}}">
-                           <iron-icon class="media_icon" icon="av:web"></iron-icon> {{item.object.attachments.0.displayName}} </a>
+                            <span>
+                              <iron-icon class="media_icon" icon="av:web"></iron-icon> {{item.object.attachments.0.displayName}}
+                            </span>
+                         </a>
                           <p id="article_subtitle"> {{item.object.attachments.0.content}} </p>
                           <a href="{{item.object.attachments.0.url}}" target="_blank" >
                             <template is="dom-if" if="{{_hasArticleCaption(item)}}">
@@ -540,9 +543,22 @@ Example:
           type: Number,
           value: 604800000 //One week
         }, 
-        // Object that holds the post list nextpage to obtain about every user that the logged in user follows
-        //Also stores other necessary field like the timestamp of the last post retrieved 
-        last_retrieved_posts: {
+        /* Object that holds a list of object about the actual page 
+         the post list nextpage to obtain about every user that the logged in user follows
+        Also stores other necessary field like the timestamp of the last post retrieved
+         Elements:
+         - author: G+ user id, author of posts 
+         - displayName: human readable identifier for the user
+         - first_post_timestamp: timestamp of the first post in the page
+         - last_post_timestamp: timestamp of the first post in the page
+         - nextPageToken: identifier for the next page of post list retrieved by the API
+         - etag: etag response identifier, used for conditional request purposes 
+        */
+        last_retrieved_page: {
+          type: Object,
+          value: []
+        },
+        user_followings: {
           type: Object,
           value: []
         }
@@ -551,11 +567,14 @@ Example:
 
     _responseFollowings: function(event, detail){
       //We generate an ajax request to get the post published by the authenticated user
+      this.push('user_followings', "me");
       this.$.requestPosts.setAttribute("url", this._getRequestPostsURL("me"));
       this.$.requestPosts.generateRequest();
       //We generate an ajax request for each user that the authenticated user follows 
       for (i=0;i<detail.response.items.length;i++) {
         user_id = detail.response.items[i].id;
+        //We add the user_id to an auxiliar structure
+        this.push('user_followings', user_id);
         this.$.requestPosts.setAttribute("url", this._getRequestPostsURL(user_id));
         this.$.requestPosts.generateRequest();
       }
@@ -565,18 +584,20 @@ Example:
       return "https://www.googleapis.com/plus/v1/people/" + user_id + "/activities/public";
     },
 
-    _updateLastRetrievedPosts: function(last_post_details){
+    _updateLastRetrievedPage: function(current_page_details){
       // We add the timestamp of the last post retrieved along with its author to an auxiliary variable
       found = false;
-      for(i=0; i < this.last_retrieved_posts.length && !found;i++){
-        if(this.last_retrieved_posts[i].author === last_post_details.author){
+      for(i=0; i < this.last_retrieved_page.length && !found;i++){
+        if(this.last_retrieved_page[i].author === current_page_details.author){
           found = true;
-          this.set('last_retrieved_posts.' + i + '.timestamp', last_post_details.timestamp);
-          this.set('last_retrieved_posts.' + i + '.nextPageToken', last_post_details.nextPageToken); 
+          this.set('last_retrieved_page.' + i + '.last_post_timestamp', current_page_details.last_post_timestamp);
+          this.set('last_retrieved_page.' + i + '.first_post_timestamp', current_page_details.first_post_timestamp);
+          this.set('last_retrieved_page.' + i + '.etag', current_page_details.etag);
+          this.set('last_retrieved_page.' + i + '.nextPageToken', current_page_details.nextPageToken); 
         }
       }
       if(!found)
-        this.push('last_retrieved_posts' ,last_post_details);
+        this.push('last_retrieved_page' ,current_page_details);
     },
     
     _obtainNextPagePost: function (user_id, last_post_timestamp, last_post_nextPageToken){
@@ -623,16 +644,18 @@ Example:
           this._updateTimelinePosts(user_posts[i]);
         }
 
-        last_post_details = { "author": user_posts[user_posts.length-1].actor.id,
+        current_page_details = { "author": user_posts[user_posts.length-1].actor.id,
                       "displayName": user_posts[user_posts.length-1].actor.displayName,
-                      "timestamp": user_posts[user_posts.length-1].published,
-                      "nextPageToken": detail.response.nextPageToken};
+                      "last_post_timestamp": user_posts[user_posts.length-1].published,
+                      "first_post_timestamp": user_posts[0].published,
+                      "nextPageToken": detail.response.nextPageToken,
+                      "etag": detail.response.etag};
         
         //We update the param that holds the relative fields about the last post retrieved and basic author info
-        this._updateLastRetrievedPosts(last_post_details);
+        this._updateLastRetrievedPage(current_page_details);
 
         // We obtain the next page for the user_posts, in order to obtain all the post in a given period (specified by page_timestamp)
-        this._obtainNextPagePost(last_post_details.author, last_post_details.timestamp, last_post_details.nextPageToken);    
+        this._obtainNextPagePost(current_page_details.author, current_page_details.last_post_timestamp, current_page_details.nextPageToken);    
       }
     },
 
@@ -674,8 +697,23 @@ Example:
     
     // ACTION FUNCTIONS FOR BUTTONS 
     _refresh_posts: function(){
+      // We update the actual_timestamp param
+      //We set the timestamp per page to a specified range of time
+      var actual_tmp = new Date();
+      this.page_timestamp = actual_tmp.getTime() - this.millis_range_timestamp;
 
+      // We reset the timeline_post returned previously
+      this.timeline_posts = [];
+      this.next_timeline_posts = [];
+      
+      //We generate an ajax request for each user that the authenticated user follows 
+      for (i=0;i<this.user_followings.length;i++) {
+        user_id = this.user_followings[i];
+        this.$.requestPosts.setAttribute("url", this._getRequestPostsURL(user_id));
+        this.$.requestPosts.generateRequest();
+      }
     },
+
     _loadMorePosts: function () {
       // We decrement the page_timestamp (we will show posts from a longer published date)
       this.set('page_timestamp', this.page_timestamp - this.millis_range_timestamp);
@@ -695,9 +733,9 @@ Example:
 
       //Then, we check if we have all the posts of every user in the desired range of time
       last_post_details = {};
-      for(i=0; i<this.last_retrieved_posts.length; i++){
+      for(i=0; i<this.last_retrieved_page.length; i++){
         // We obtain the next page for the user_posts, in order to obtain all the post in a given period (specified by page_timestamp)
-        last_post_details = this.last_retrieved_posts[i];
+        last_post_details = this.last_retrieved_page[i];
         this._obtainNextPagePost(last_post_details.author, last_post_details.timestamp, last_post_details.nextPageToken);    
       }
 
@@ -778,9 +816,9 @@ Example:
     // _thereAreMorePosts: function(){ //TODO: FIXME
     //   // Checks if there are remaining pages to be obtained from any user
     //   remainingPages = false;
-    //   console.log(this.last_retrieved_posts);
-    //   for(i=0; i< this.last_retrieved_posts.length && !remainingPages; i++){
-    //     if(typeof this.last_retrieved_posts[i].nextPageToken != undefined){
+    //   console.log(this.last_retrieved_page);
+    //   for(i=0; i< this.last_retrieved_page.length && !remainingPages; i++){
+    //     if(typeof this.last_retrieved_page[i].nextPageToken != undefined){
     //       remainingPages = true;
     //     }
     //   }
