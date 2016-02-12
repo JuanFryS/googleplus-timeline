@@ -11,7 +11,7 @@
 
 |                     | Properties                                                                                                                                   |                                   |
 |---------------------|---------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------|
-| token               | Google+ Access token of the logged in user                                                                   | Required `<String>`               |
+| token               | Google+ access token of the logged in user                                                                   | Required `<String>`               |
 
 ## Dependencies
 
