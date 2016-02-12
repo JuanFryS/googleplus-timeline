@@ -324,14 +324,6 @@ Example:
                >
     </iron-ajax>
 
-    <iron-ajax
-               id="requestUpdatedPosts"
-               method="GET"
-               handleAs='json'
-               on-response="_responseUpdatedPosts"
-               >
-    </iron-ajax>
-
       <paper-header-panel mode="waterfall" class="red">
         <div class="paper-header">
           <div>
@@ -565,17 +557,24 @@ Example:
         last_retrieved_page: {
           type: Object,
           value: []
+        },
+        user_followings: {
+          type: Object,
+          value: []
         }
 
     },
 
     _responseFollowings: function(event, detail){
       //We generate an ajax request to get the post published by the authenticated user
+      this.push('user_followings', "me");
       this.$.requestPosts.setAttribute("url", this._getRequestPostsURL("me"));
       this.$.requestPosts.generateRequest();
       //We generate an ajax request for each user that the authenticated user follows 
       for (i=0;i<detail.response.items.length;i++) {
         user_id = detail.response.items[i].id;
+        //We add the user_id to an auxiliar structure
+        this.push('user_followings', user_id);
         this.$.requestPosts.setAttribute("url", this._getRequestPostsURL(user_id));
         this.$.requestPosts.generateRequest();
       }
@@ -660,10 +659,6 @@ Example:
       }
     },
 
-    _responseUpdatedPosts: function(event, detail){
-      console.log(detail.response);
-    },
-
     // Element Lifecycle
 
     ready: function() {
@@ -706,16 +701,16 @@ Example:
       //We set the timestamp per page to a specified range of time
       var actual_tmp = new Date();
       this.page_timestamp = actual_tmp.getTime() - this.millis_range_timestamp;
+
+      // We reset the timeline_post returned previously
+      this.timeline_posts = [];
+      this.next_timeline_posts = [];
       
-      // For every user that the identified user follows (included her/himself)
-      // we check if any of them has published anything new, doing a conditional request
-      for(i=0; i < this.last_retrieved_page.length; i++){
-        user_page = this.last_retrieved_page[i];
-        conditional_header = {"If-None-Match": user_page.etag,
-                              "Authorization": "Bearer " + this.token};
-        this.$.requestUpdatedPosts.setAttribute("headers", JSON.stringify(conditional_header));
-        this.$.requestUpdatedPosts.setAttribute("url", this._getRequestPostsURL(user_page.author));
-        this.$.requestUpdatedPosts.generateRequest();
+      //We generate an ajax request for each user that the authenticated user follows 
+      for (i=0;i<this.user_followings.length;i++) {
+        user_id = this.user_followings[i];
+        this.$.requestPosts.setAttribute("url", this._getRequestPostsURL(user_id));
+        this.$.requestPosts.generateRequest();
       }
     },
 
