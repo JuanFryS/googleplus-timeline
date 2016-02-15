@@ -176,7 +176,7 @@ Example:
     }
 
     #video_title{
-      font: normal 15px Roboto,arial,sans-serif;
+      font: normal 14px Roboto,arial,sans-serif;
       margin-top: 0px;
       margin-bottom: 8px;
       padding-top: 5px;
@@ -198,7 +198,7 @@ Example:
     }
 
     #article_title{
-      font: normal 15px Roboto, arial, sans-serif;
+      font: normal 14px Roboto, arial, sans-serif;
       text-decoration: none;
       color: #404040;
       vertical-align: middle;
@@ -279,7 +279,7 @@ Example:
       padding-bottom: 10px;
     }
     #loadMoreButton{
-      background-color: #A9A9AA;
+      background-color: #BDBDBD;
       padding-bottom: 10px;
       font-weight: bold;
     }
@@ -363,12 +363,6 @@ Example:
                   
                   <!-- post attachments -->
                   <template is="dom-if" if="{{item.object.attachments}}">
-                      <!-- <p>  
-                      Video: {{_hasAttachment(item,'video')}}
-                      Photo: {{_hasAttachment(item,'photo')}}
-                      Article: {{_hasAttachment(item,'article')}}
-                      Album: {{_hasAttachment(item,'album')}}</p> -->
-                      
                       <!-- post video attachment (if any) -->
                       <template is="dom-if" if="{{_hasVideoAttachment(item)}}">
                         <!-- <google-youtube video-id="{{_getYoutubeVideoId(item.object.attachments.0.embed.url)}}" 
@@ -491,7 +485,8 @@ Example:
             </paper-material>
           </template>
           <!-- "Load More" button -->
-          <!-- <template is="dom-if" if="{{_thereAreMorePosts()}}"> TODO: FIXME-->
+          
+          <!-- <template is="dom-if" if="{{_thereAreMorePosts(item)}}"> -->
             <div on-click="_loadMorePosts" class="horizontal center-justified layout" id="loadMoreDiv">
             <paper-button id="loadMoreButton">LOAD MORE</paper-button>
             </div>
@@ -545,6 +540,11 @@ Example:
         last_retrieved_posts: {
           type: Object,
           value: []
+        },
+        //Auxiliar param to check if there are new posts loaded when the user wants to see another page of posts
+        post_added_per_page: {
+          type: Number,
+          value: 0
         }
 
     },
@@ -571,11 +571,17 @@ Example:
       for(i=0; i < this.last_retrieved_posts.length && !found;i++){
         if(this.last_retrieved_posts[i].author === last_post_details.author){
           found = true;
-          this.set('last_retrieved_posts.' + i + '.timestamp', last_post_details.timestamp);
-          this.set('last_retrieved_posts.' + i + '.nextPageToken', last_post_details.nextPageToken); 
+          //If there aren't new pages to be obtained for the user, we don't track it anymore
+          if(typeof (last_post_details.nextPageToken) === 'undefined'){
+            this.splice('last_retrieved_posts', i, 1);
+          }
+          else{
+            this.set('last_retrieved_posts.' + i + '.timestamp', last_post_details.timestamp);
+            this.set('last_retrieved_posts.' + i + '.nextPageToken', last_post_details.nextPageToken); 
+          }
         }
       }
-      if(!found)
+      if(!found && (typeof last_post_nextPageToken) != 'undefined')
         this.push('last_retrieved_posts' ,last_post_details);
     },
     
@@ -599,6 +605,8 @@ Example:
       // list of post that are being showed to the user
       if(user_post.published >= this.page_timestamp){
         this.push('timeline_posts', user_post);
+        //We increment the var that represents the posts displayed per page
+        this.post_added_per_page++;
       }
       // If the post was published previously, we insert it onto an auxiliar object
       //that holds the components that will be shown in the next pages
@@ -627,12 +635,11 @@ Example:
                       "displayName": user_posts[user_posts.length-1].actor.displayName,
                       "timestamp": user_posts[user_posts.length-1].published,
                       "nextPageToken": detail.response.nextPageToken};
-        
         //We update the param that holds the relative fields about the last post retrieved and basic author info
         this._updateLastRetrievedPosts(last_post_details);
 
         // We obtain the next page for the user_posts, in order to obtain all the post in a given period (specified by page_timestamp)
-        this._obtainNextPagePost(last_post_details.author, last_post_details.timestamp, last_post_details.nextPageToken);    
+        this._obtainNextPagePost(last_post_details.author, last_post_details.timestamp, last_post_details.nextPageToken);  
       }
     },
 
@@ -679,9 +686,11 @@ Example:
     _loadMorePosts: function () {
       // We decrement the page_timestamp (we will show posts from a longer published date)
       this.set('page_timestamp', this.page_timestamp - this.millis_range_timestamp);
+      console.log("Llamada a _loadMorePosts");
+      //We reset the post added per page counter
+      this.post_added_per_page = 0;
       // First, we search for posts suitable to be shown in the auxiliar object
       // of posts not shown from previous requests
-      //Auxiliary vars
       user_post = {}
       i = 0;
       while(i < this.next_timeline_posts.length){
@@ -689,6 +698,7 @@ Example:
         if(user_post.published >= this.page_timestamp){
           this.push('timeline_posts', user_post);
           this.splice('next_timeline_posts', i, 1);
+          this.post_added_per_page++;
         }else
           i++;
       }
@@ -701,6 +711,9 @@ Example:
         this._obtainNextPagePost(last_post_details.author, last_post_details.timestamp, last_post_details.nextPageToken);    
       }
 
+      //We execute recursively the function if we haven't displayed any post in the current page
+      if(this.post_added_per_page<5 && (this.last_retrieved_posts.length != 0 || this.next_timeline_posts.length != 0))
+        this._loadMorePosts();
     },
 
     // AUXILIAR FUNCTIONS
@@ -775,23 +788,15 @@ Example:
 
     // AUXILIAR FUNCTIONS FOR DOM-IF CONDITIONS 
     
-    // _thereAreMorePosts: function(){ //TODO: FIXME
-    //   // Checks if there are remaining pages to be obtained from any user
-    //   remainingPages = false;
-    //   console.log(this.last_retrieved_posts);
-    //   for(i=0; i< this.last_retrieved_posts.length && !remainingPages; i++){
-    //     if(typeof this.last_retrieved_posts[i].nextPageToken != undefined){
-    //       remainingPages = true;
-    //     }
-    //   }
-    //   return (this.next_timeline_posts.length != 0) || (remainingPages != 0);
+    // _thereAreMorePosts: function(item){
+    //   // Checks if there are remaining posts to be displayed
+    //   console.log("Evaluo si hay mas posts que cargar");
+    //   console.log(this.last_retrieved_posts.length);
+    //   console.log(this.next_timeline_posts.length);
+    //   return (this.last_retrieved_posts.length != 0) || (this.next_timeline_posts.length != 0);
     // },
 
     _hasAttachment: function(item, attachmentType){
-      // if (item.object.attachments[0].objectType === "article"){
-      //   console.log("Titular " + item.object.attachments[0].displayName);
-      //   console.log("Subtitulo " + item.object.attachments[0].content);
-      // }
       return item.object.attachments[0].objectType === attachmentType;
     },
 
