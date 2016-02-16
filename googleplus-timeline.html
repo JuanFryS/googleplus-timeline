@@ -544,10 +544,8 @@ Example:
          Elements:
          - author: G+ user id, author of posts 
          - displayName: human readable identifier for the user
-         - first_post_timestamp: timestamp of the first post in the page
-         - last_post_timestamp: timestamp of the first post in the page
+         - timestamp: timestamp of the first post in the page
          - nextPageToken: identifier for the next page of post list retrieved by the API
-         - etag: etag response identifier, used for conditional request purposes 
         */
         last_retrieved_page: {
           type: Object,
@@ -584,28 +582,29 @@ Example:
       return "https://www.googleapis.com/plus/v1/people/" + user_id + "/activities/public";
     },
 
-    _updateLastRetrievedPage: function(current_page_details){
+    _updateLastRetrievedPage: function(current_user_page){
       // We add the timestamp of the last post retrieved along with its author to an auxiliary variable
       found = false;
       for(i=0; i < this.last_retrieved_page.length && !found;i++){
-        if(this.last_retrieved_page[i].author === current_page_details.author){
+        if(this.last_retrieved_page[i].author === current_user_page.author){
           found = true;
           //If there aren't new pages to be obtained for the user, we don't track it anymore
-          if(typeof (last_post_details.nextPageToken) === 'undefined'){
-            this.splice('last_retrieved_posts', i, 1);
+          if(typeof (current_user_page.nextPageToken) == 'undefined'){
+            this.splice('last_retrieved_page', i, 1);
           }
           else{
-            this.set('last_retrieved_posts.' + i + '.timestamp', last_post_details.timestamp);
-            this.set('last_retrieved_posts.' + i + '.nextPageToken', last_post_details.nextPageToken); 
+            this.set('last_retrieved_page.' + i + '.timestamp', current_user_page.timestamp);
+            this.set('last_retrieved_page.' + i + '.nextPageToken', current_user_page.nextPageToken); 
           }
         }
       }
-      if(!found && (typeof last_post_nextPageToken) != 'undefined')
-        this.push('last_retrieved_posts' ,last_post_details);
+      if(!found && (typeof current_user_page.nextPageToken) != 'undefined')
+        this.push('last_retrieved_page' ,current_user_page);
     },
     
     _obtainNextPagePost: function (user_id, last_post_timestamp, last_post_nextPageToken){
-      // We check if the last user post returned is previous to the page_timestamp (posts that will be displayed on the first page)
+      // We check if the last user post returned is previous to the page_timestamp 
+      // (posts that will be displayed on the current displayed page)
       // If it is, we'll request the following post from the user until we've reached the reference timestamp for the actual "page"
       // that displays the component
       if(last_post_timestamp > this.page_timestamp && (typeof last_post_nextPageToken) != 'undefined'){
@@ -652,17 +651,15 @@ Example:
 
         current_page_details = { "author": user_posts[user_posts.length-1].actor.id,
                       "displayName": user_posts[user_posts.length-1].actor.displayName,
-                      "last_post_timestamp": user_posts[user_posts.length-1].published,
-                      "first_post_timestamp": user_posts[0].published,
-                      "nextPageToken": detail.response.nextPageToken,
-                      "etag": detail.response.etag};
+                      "timestamp": user_posts[user_posts.length-1].published,
+                      "nextPageToken": detail.response.nextPageToken};
         
         //We update the param that holds the relative fields about the last post retrieved and basic author info
         this._updateLastRetrievedPage(current_page_details);
 
         // We obtain the next page for the user_posts, in order to obtain all the post in a given period (specified by page_timestamp)
 
-        this._obtainNextPagePost(current_page_details.author, current_page_details.last_post_timestamp, current_page_details.nextPageToken);  
+        this._obtainNextPagePost(current_page_details.author, current_page_details.timestamp, current_page_details.nextPageToken);  
       }
     },
 
@@ -725,6 +722,9 @@ Example:
       // We decrement the page_timestamp (we will show posts from a longer published date)
       this.set('page_timestamp', this.page_timestamp - this.millis_range_timestamp);
       console.log("Llamada a _loadMorePosts");
+      console.log(this.page_timestamp);
+      console.log(this.last_retrieved_page);
+      console.log(this.next_timeline_posts);
       //We reset the post added per page counter
       this.post_added_per_page = 0;
       // First, we search for posts suitable to be shown in the auxiliar object
@@ -749,9 +749,11 @@ Example:
         this._obtainNextPagePost(last_post_details.author, last_post_details.timestamp, last_post_details.nextPageToken);    
       }
 
+      console.log(this.post_added_per_page);
       //We execute recursively the function if we haven't displayed any post in the current page
-      if(this.post_added_per_page<5 && (this.last_retrieved_posts.length != 0 || this.next_timeline_posts.length != 0))
+      if(this.post_added_per_page<5 && (this.last_retrieved_page.length != 0 || this.next_timeline_posts.length != 0)){
         this._loadMorePosts();
+      }
     },
 
     // AUXILIAR FUNCTIONS
@@ -830,9 +832,9 @@ Example:
     // _thereAreMorePosts: function(item){
     //   // Checks if there are remaining posts to be displayed
     //   console.log("Evaluo si hay mas posts que cargar");
-    //   console.log(this.last_retrieved_posts.length);
+    //   console.log(this.last_retrieved_page.length);
     //   console.log(this.next_timeline_posts.length);
-    //   return (this.last_retrieved_posts.length != 0) || (this.next_timeline_posts.length != 0);
+    //   return (this.last_retrieved_page.length != 0) || (this.next_timeline_posts.length != 0);
     // },
 
     _hasAttachment: function(item, attachmentType){
