@@ -1,0 +1,12 @@
+// Spanish
+{
+	"load_more": "Cargar más",
+	"shared_first": "ha compartido primero: ",
+	"month": ["enero","febrero","marzo","abril", "mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"],
+	"sec": "segundo",
+	"secs": "segundos",
+	"min": "minuto",
+	"mins": "minutos",
+	"day": "día",
+	"days":"días"	
+}
