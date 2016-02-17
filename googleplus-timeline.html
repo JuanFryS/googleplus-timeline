@@ -172,14 +172,13 @@ Example:
       height: 75px;
       border: 1px;
       border-color: #BDBDBD;
-      padding: 2px 5px 0px 5px;
+      padding: 3px 3px 0px 3px;
     }
-
     #video_title{
       font: normal 14px Roboto,arial,sans-serif;
       margin-top: 0px;
       margin-bottom: 8px;
-      padding-top: 5px;
+      padding-top: 23px;
       text-decoration: none;
       color: #404040;
       display: inline;
@@ -190,9 +189,13 @@ Example:
     #video_title:hover{
       color: #1976D2;
     } 
-
+    #article_title_container {
+      padding-left: 15px;
+      padding-top: 10px;
+      float: left;
+    }
     .attached_photo{
-      width: 360px;
+      width: 348px;
       height: auto;
       padding: 0px 15px 15px 15px;
     }
@@ -202,7 +205,9 @@ Example:
       text-decoration: none;
       color: #404040;
       vertical-align: middle;
+      padding: 10px 0px 5px 15px;
     }
+    
     #article_subtitle{
       font: normal 13px Roboto,arial,sans-serif;
       margin-top: 0px;
@@ -368,13 +373,13 @@ Example:
                         <!-- <google-youtube video-id="{{_getYoutubeVideoId(item.object.attachments.0.embed.url)}}" 
                         width="380px" height="285px" ><google-youtube> -->
                         <div class="attachment_box_container">
-                          <a id="video_title" href="{{item.object.attachments.0.url}}" target="_blank">                            
                             <span>
-                              <p><iron-icon class="media_icon" icon="av:play-arrow"></iron-icon>
-                               {{item.object.attachments.0.displayName}}</p>
-                              <!-- <p id="article_subtitle"> {{item.object.attachments.0.content}} </p> -->
+                              <a id="video_title" href="{{item.object.attachments.0.url}}" target="_blank">                            
+                                <iron-icon class="media_icon" icon="av:play-arrow"></iron-icon>
+                                 {{item.object.attachments.0.displayName}}
+                                <!-- <p id="article_subtitle"> {{item.object.attachments.0.content}} </p> -->
+                              </a>
                             </span>
-                          </a>
                           <a href="{{item.object.attachments.0.url}}" target="_blank">
                             <img id="video_caption" src="{{item.object.attachments.0.image.url}}">
                           </a>
@@ -394,10 +399,8 @@ Example:
                       <template is="dom-if" if="{{_hasAttachment(item,'article')}}">
                         <div class="attachment_box_container">
                           <a id="article_title" class="post-link" target="_blank" href="{{item.object.attachments.0.url}}">
-                            <span>
-                              <iron-icon class="media_icon" icon="av:web"></iron-icon> {{item.object.attachments.0.displayName}}
-                            </span>
-                         </a>
+                            <iron-icon class="media_icon" icon="av:web"></iron-icon> {{item.object.attachments.0.displayName}}
+                          </a>  
                           <p id="article_subtitle"> {{item.object.attachments.0.content}} </p>
                           <a href="{{item.object.attachments.0.url}}" target="_blank" >
                             <template is="dom-if" if="{{_hasArticleCaption(item)}}">
