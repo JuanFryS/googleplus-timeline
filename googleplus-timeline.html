@@ -357,7 +357,7 @@ Example:
                   <template is="dom-if" if="{{_isSharedPost(item)}}">
                       <div id="share_details">
                         <a href="{{item.object.actor.url}}" target="_blank" id="original_post_author">{{item.object.actor.displayName}}</a> 
-                        <a href="{{item.url}}" target="_blank" id="original-post-link"> has shared first:</a> 
+                        <a href="{{item.url}}" target="_blank" id="original-post-link"> {{language_data.shared_first}}</a> 
                       </div>
                   </template>
 
@@ -494,7 +494,7 @@ Example:
           
           <!-- <template is="dom-if" if="{{_thereAreMorePosts(item)}}"> -->
             <div on-click="_loadMorePosts" class="horizontal center-justified layout" id="loadMoreDiv">
-            <paper-button id="loadMoreButton">LOAD MORE</paper-button>
+            <paper-button id="loadMoreButton">{{language_data.load_more}}</paper-button>
             </div>
           <!-- </template> -->
         </div>
@@ -562,8 +562,52 @@ Example:
         post_added_per_page: {
           type: Number,
           value: 0
+        },
+        language: {
+          type: String,
+          value: 'es',
+          notify: true,
+          reflectToAttribute: true,
+          observer: "_languageChanged"
+        },
+        language_en: {
+          type: Object,
+          value: {
+            "load_more": "Load More",
+            "shared_first": "has shared first: ",
+            "months": ["January", "February", "March", "April", "May", "June", "July", "August",
+              "September", "October", "November", "December"],
+            "sec": "second",
+            "secs": "seconds",
+            "min": "minute",
+            "mins": "minutes",
+            "hour": "hour",
+            "hours": "hours",
+            "day": "day",
+            "days":"days" 
+          }
+        },
+        language_es: {
+          type: Object,
+          value: {
+            "load_more": "Cargar más",
+            "shared_first": "ha compartido primero: ",
+            "months": ["enero","febrero","marzo","abril", "mayo","junio","julio","agosto","septiembre",
+            "octubre","noviembre","diciembre"],
+            "sec": "segundo",
+            "secs": "segundos",
+            "min": "minuto",
+            "mins": "minutos",
+            "hour": "hora",
+            "hours": "horas",
+            "day": "día",
+            "days":"días" 
+          }
+        },
+        language_data: {
+          type: Object,
+          value: []
         }
-
     },
 
     _responseFollowings: function(event, detail){
@@ -685,8 +729,14 @@ Example:
       // visual state or active behavior (measuring sizes, beginning animations,
       // loading resources, etc).      
       if (this.token) {
-        var actual_tmp = new Date();
+        //We set the language
+        if(this.language == "en")
+          this.set('language_data', this.language_en);
+        else if(this.language == "es")
+          this.set('language_data', this.language_es);
+
         //We set the timestamp per page to a specified range of time
+        var actual_tmp = new Date();
         this.page_timestamp = actual_tmp.getTime() - this.millis_range_timestamp;
         //We set the headers for the Google API requests
         this.$.requestFollowing.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
@@ -724,10 +774,6 @@ Example:
     _loadMorePosts: function () {
       // We decrement the page_timestamp (we will show posts from a longer published date)
       this.set('page_timestamp', this.page_timestamp - this.millis_range_timestamp);
-      console.log("Llamada a _loadMorePosts");
-      console.log(this.page_timestamp);
-      console.log(this.last_retrieved_page);
-      console.log(this.next_timeline_posts);
       //We reset the post added per page counter
       this.post_added_per_page = 0;
       // First, we search for posts suitable to be shown in the auxiliar object
@@ -752,7 +798,6 @@ Example:
         this._obtainNextPagePost(last_post_details.author, last_post_details.timestamp, last_post_details.nextPageToken);    
       }
 
-      console.log(this.post_added_per_page);
       //We execute recursively the function if we haven't displayed any post in the current page
       if(this.post_added_per_page<5 && (this.last_retrieved_page.length != 0 || this.next_timeline_posts.length != 0)){
         this._loadMorePosts();
@@ -770,52 +815,52 @@ Example:
       var updated_date = new Date(post.updated)
       var current_date = new Date();
       var time;
-      var month = ["jan","feb","mar","apr", "may","jun","jul","aug","sep","oct","nov","dec"];
+      var month = this.language_data.months;
       /* Years*/
       if ((current_date.getFullYear() - date.getFullYear()) != 0) {
         var dif = current_date.getFullYear() - date.getFullYear()
-        time = date.getDate() + " " + month[date.getMonth()] + ". "+ date.getFullYear();
+        time = date.getDate() + " " + month[date.getMonth()] + " " + date.getFullYear();
       /* Months */
       } else if ((current_date.getMonth() - date.getMonth()) != 0) { 
         var dif = current_date.getMonth() - date.getMonth();
-        time = date.getDate() + " "+ month[date.getMonth()] + ". "+ date.getFullYear();
+        time = date.getDate() + " " + month[date.getMonth()] + " " + date.getFullYear();
       /* Days */
       } else if((current_date.getDate() - date.getDate()) == 0 ){
         if((current_date.getHours() - date.getHours()) == 0 ){
           if( (current_date.getMinutes() - date.getMinutes()) == 0 ){
             time = current_date.getSeconds() - date.getSeconds();
-            time += time == 1? " second": " seconds";
+            time += time == 1? " " + this.language_data.sec : " " + this.language_data.secs;
           }
           else{
             time = current_date.getMinutes() - date.getMinutes();
-            time += time == 1? " minute":  " minutes";
+            time += time == 1? " " + this.language_data.min: " " + this.language_data.mins;
           }
         }
         else{
           if (current_date.getHours() - date.getHours() == 1) {
-            time = current_date.getHours() - date.getHours()+" hour";
+            time = current_date.getHours() - date.getHours();
+            time += " " + this.language_data.hour;
           }else {
-            time = current_date.getHours() - date.getHours()+" hours";
+            time = current_date.getHours() - date.getHours();
+            time += " " + this.language_data.hours;
           }
         }
       }
       else if( ((current_date.getDate() - date.getDate()) < 8) && ( (current_date.getDate() - date.getDate()) > 0)){
         if( (current_date.getDate() - date.getDate()) == 1){
-          time = current_date.getDate() - date.getDate()+ " day";
+          time = current_date.getDate() - date.getDate();
+          time += " " + this.language_data.day;
         }
         else{
-          time = current_date.getDate() - date.getDate()+ " days";
+          time = current_date.getDate() - date.getDate();
+          time += " " + this.language_data.days;
         }
       }
       else{
-        time = date.getDate()+" "+month[date.getMonth()] + ". "+ date.getFullYear();
+        time = date.getDate()+ " " + month[date.getMonth()] + " " + date.getFullYear();
       }
-      // We change the timestamps to millis UTC and we create a fielf that represents the published
+      // We change the timestamps to millis UTC and we create a field that represents the published
       // date in a readably format
-      // this.set("timeline_posts." + index + ".published_pretty", time);
-      // this.set("timeline_posts." + index + ".published", date.getTime());
-      // this.set("timeline_posts." + index + ".updated", updated_date.getTime());
-      
       updated_post.published_pretty = time;
       updated_post.published = date.getTime();
       updated_post.updated= updated_date.getTime();
@@ -834,9 +879,6 @@ Example:
 
     // _thereAreMorePosts: function(item){
     //   // Checks if there are remaining posts to be displayed
-    //   console.log("Evaluo si hay mas posts que cargar");
-    //   console.log(this.last_retrieved_page.length);
-    //   console.log(this.next_timeline_posts.length);
     //   return (this.last_retrieved_page.length != 0) || (this.next_timeline_posts.length != 0);
     // },
 
@@ -914,10 +956,18 @@ Example:
             dimension = "86px";
         }
       }
-      // console.log("Main caption: " + main_photo + " dimension: " + dimension + ". N. fotos: " + album_captions_length);
       return dimension;
     },
-
+    // OBSERVERS
+      _languageChanged: function(newVal){
+        if(newVal === "en"){
+          this.language = "en";
+          this.set('language_data', this.language_en);
+        }
+        else if(newVal === "es"){
+          this.language = "es";
+          this.set('language_data', this.language_es);
+        }
+      },
   });
-
 </script>
