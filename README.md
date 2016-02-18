@@ -14,8 +14,7 @@ Note: This version adds accuracy defects (changes author of the post to a generi
 |---------------------|---------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------|
 | token               | Google+ access token of the logged in user                                                                   | Required `<String>`               |
 | language               | Google+ access token of the logged in user                                                                   | Optional `<String>`               |
-
-| accuracy-probability               | Sets the probability to introduce accuracy defects to the information displayed by the component                                                                   | Optional `<Integer>`               |
+| accuracy-probability               | Sets the probability to introduce accuracy defects to the information displayed by the component  | Optional `<Integer>`               |
 
 ## Dependencies
 
