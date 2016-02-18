@@ -20,7 +20,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <p>An example of <code>&lt;googleplus-timeline&gt;</code>:</p>
 
-    <googleplus-timeline token="">
-    </googleplus-timeline>
+
+    <template id="Demo" is="dom-bind">  
+      <googleplus-timeline token="" language="{{language}}">
+      </googleplus-timeline>
+      </br></br>
+      <button name="es" on-click="changeIdiom">Spanish</button>
+      <button name="en" on-click="changeIdiom">English</button>
+    </template>
+    <script>
+      Demo.language = "es";
+      Demo.changeIdiom = function(event,detail) {
+        Demo.language = event.target.getAttribute('name');
+      }
+    </script>
   </body>
 </html>
