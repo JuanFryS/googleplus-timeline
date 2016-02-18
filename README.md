@@ -1,6 +1,7 @@
 # googleplus-timeline
 
 [Polymer](https://www.polymer-project.org/1.0/) Web Component that obtains Google+ feed for an user.
+
 **Note**: This version adds latency defects (slower reactions to user interactions) for final-user testing research purposes. The latency can be setted with the "latency-time" param.
 ## Use
 ```html
@@ -13,7 +14,7 @@
 |---------------------|---------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------|
 | token               | Google+ access token of the logged in user                                                                   | Required `<String>`               |
 | language               | Language of information provided by the component (details about a certain post, not the post content itself)                                                                   | Optional `<String>`    (Default: 'en')           |
-| latency-time               | Latency (in milliseconds) intended to be introduce to the component.behaviour                                                                   | Optional `<Integer>`    (Default: 2000 milliseconds)           |
+| latency-time               | Latency (in milliseconds) intended to be introduced to the component.behaviour                                                                   | Optional `<Integer>`    (Default: 2000 milliseconds)           |
 
 ## Dependencies
 
