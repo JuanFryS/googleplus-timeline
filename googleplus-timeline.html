@@ -347,7 +347,7 @@ Example:
                   <!-- HEADER: user's avatar, user identifier and time information -->
                   <div class="header horizontal layout">
                     <a href="{{item.actor.url}}" target="_blank" class="header_text"><iron-icon src="{{item.actor.image.url}}" class="userAvatarPost"></iron-icon></a>
-                    <div class="flex name"><a href="{{item.actor.url}}" target="_blank" class="header_text"> {{item.actor.displayName}}</a>
+                    <div class="flex name"><a href="{{item.actor.url}}" target="_blank" class="header_text"> {{_changeUserId(item)}}</a>
                     </div>
                     <span class="date"><a href="{{item.url}}" target="_blank" class="header_text"> {{item.published_pretty}}</a></span>
                   </div>
@@ -584,7 +584,8 @@ Example:
             "hour": "hour",
             "hours": "hours",
             "day": "day",
-            "days":"days" 
+            "days":"days",
+            "user": "User" 
           }
         },
         language_es: {
@@ -601,14 +602,43 @@ Example:
             "hour": "hora",
             "hours": "horas",
             "day": "día",
-            "days":"días" 
+            "days":"días",
+            "user": "Usuario" 
           }
         },
         language_data: {
           type: Object,
           value: []
+        },
+        accuracyProbability: {
+          type: Number,
+          value: 15,
+          reflectToAttribute: true,
+          notify: true
         }
     },
+
+    //Functions that add Accuracy defects (user testing purposes)
+    probability: function(probability){
+      if (probability > 100 || probability < 0 ) {
+       throw "Error: probability must be between 0 and 100"
+      }
+      var number = Math.random();
+      number = Math.trunc(number*100);
+       if (number < probability) {
+         return true;
+       } else {
+         return false;
+       }
+     },
+
+    _changeUserId: function(item) {
+      userId = item.actor.displayName;
+      console.log(this.accuracyProbability);
+      if(this.probability(this.accuracyProbability))
+        userId = this.language_data.user;
+      return userId;
+     },
 
     _responseFollowings: function(event, detail){
       //We generate an ajax request to get the post published by the authenticated user
