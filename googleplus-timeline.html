@@ -565,7 +565,7 @@ Example:
         },
         language: {
           type: String,
-          value: 'es',
+          value: 'en',
           notify: true,
           reflectToAttribute: true,
           observer: "_languageChanged"
@@ -968,6 +968,8 @@ Example:
           this.language = "es";
           this.set('language_data', this.language_es);
         }
+        //Re-renders the component
+        this._refresh_posts();
       },
   });
 </script>
