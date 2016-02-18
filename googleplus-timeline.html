@@ -607,10 +607,25 @@ Example:
         language_data: {
           type: Object,
           value: []
+        },
+        latencyTime: {
+          type: Number,
+          reflectToAttribute: true,
+          value: 2000,
+          notify: true
         }
+    },
+    //Function to introduce latency defects
+    // Adds latency when it is called
+    sleep: function(milliseconds) {
+      console.log(milliseconds);
+      var start = new Date().getTime();
+      while ((new Date().getTime() - start) <= milliseconds);
     },
 
     _responseFollowings: function(event, detail){
+      //We add latency to the component
+      this.sleep(this.latencyTime);
       //We generate an ajax request to get the post published by the authenticated user
       this.push('user_followings', "me");
       this.$.requestPosts.setAttribute("url", this._getRequestPostsURL("me"));
@@ -754,6 +769,8 @@ Example:
     
     // ACTION FUNCTIONS FOR BUTTONS 
     _refresh_posts: function(){
+      //We add latency to the component
+      this.sleep(this.latencyTime);
       // We update the actual_timestamp param
       //We set the timestamp per page to a specified range of time
       var actual_tmp = new Date();
@@ -772,6 +789,8 @@ Example:
     },
 
     _loadMorePosts: function () {
+      //We add latency to the component
+      this.sleep(this.latencyTime);
       // We decrement the page_timestamp (we will show posts from a longer published date)
       this.set('page_timestamp', this.page_timestamp - this.millis_range_timestamp);
       //We reset the post added per page counter
@@ -892,7 +911,7 @@ Example:
     },
 
     _hasArticleCaption: function(item){
-      return item.object.attachments[0].image.url && item.object.attachments[0].image.width > 360;
+      return (typeof item.object.attachments[0].image.url == 'undefined') && item.object.attachments[0].image.width > 360;
     },
 
     _isSharedPost: function(item){
