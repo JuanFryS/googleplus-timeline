@@ -13,8 +13,8 @@
 |                     | Properties                                                                                                                                   |                                   |
 |---------------------|---------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------|
 | token               | Google+ access token of the logged in user                                                                   | Required `<String>`               |
-| language               | Language of information provided by the component (details about a certain post, not the post content itself)                                                                   | Optional `<String>`               |
-| accuracy-probability               | Sets the probability to introduce accuracy defects to the information displayed by the component  | Optional `<Integer>`               |
+| language               | Language of information provided by the component (details about a certain post, not the post content itself)                                                                   | Optional `<String>`  (Default: 'en')             |
+| accuracy-probability               | Sets the probability to introduce accuracy defects to the information displayed by the component  | Optional `<Integer>` (Default: 15)              |
 
 ## Dependencies
 
