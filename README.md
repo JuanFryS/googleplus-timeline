@@ -12,6 +12,7 @@
 |                     | Properties                                                                                                                                   |                                   |
 |---------------------|---------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------|
 | token               | Google+ access token of the logged in user                                                                   | Required `<String>`               |
+| language               | Language of information provided by the component (details about a certain post, not the post content itself)                                                                   | Optional `<String>`    (Default: 'en')           |
 
 ## Dependencies
 
