@@ -492,8 +492,8 @@ Example:
           <!-- "Load More" button -->
           
           <!-- <template is="dom-if" if="{{_thereAreMorePosts(item)}}"> -->
-            <div on-click="_loadMorePosts" class="horizontal center-justified layout" id="loadMoreDiv">
-            <paper-button id="loadMoreButton">{{language_data.load_more}}</paper-button>
+            <div class="horizontal center-justified layout" id="loadMoreDiv">
+            <paper-button id="loadMoreButton" on-click="_loadMorePosts">{{language_data.load_more}}</paper-button>
             </div>
           <!-- </template> -->
         </div>
