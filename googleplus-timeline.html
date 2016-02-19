@@ -374,7 +374,7 @@ Example:
                         <div class="attachment_box_container">
                             <span>
                               <a id="video_title" href="{{item.object.attachments.0.url}}" target="_blank">                            
-                                <iron-icon class="media_icon" icon="av:play-arrow"></iron-icon>
+                                <!-- <iron-icon class="media_icon" icon="av:play-arrow"></iron-icon> -->
                                  {{item.object.attachments.0.displayName}}
                                 <!-- <p id="article_subtitle"> {{item.object.attachments.0.content}} </p> -->
                               </a>
@@ -398,7 +398,8 @@ Example:
                       <template is="dom-if" if="{{_hasAttachment(item,'article')}}">
                         <div class="attachment_box_container">
                           <a id="article_title" class="post-link" target="_blank" href="{{item.object.attachments.0.url}}">
-                            <iron-icon class="media_icon" icon="av:web"></iron-icon> {{item.object.attachments.0.displayName}}
+                            <!-- <iron-icon class="media_icon" icon="av:web"></iron-icon> -->
+                             {{item.object.attachments.0.displayName}}
                           </a>  
                           <p id="article_subtitle"> {{item.object.attachments.0.content}} </p>
                           <a href="{{item.object.attachments.0.url}}" target="_blank" >
@@ -415,7 +416,7 @@ Example:
                         <div id="albumContainer">
                           <div id="album_title_container">
                             <a href="{{item.object.attachments.0.url}}" id="album_title" target="_blank">
-                              <iron-icon class="media_icon" icon="image:photo-album"></iron-icon>
+                              <!-- <iron-icon class="media_icon" icon="image:photo-album"></iron-icon> -->
                               {{item.object.attachments.0.displayName}}
                             </a>
                           </div>
