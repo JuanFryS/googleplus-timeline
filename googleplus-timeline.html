@@ -144,6 +144,18 @@ Example:
     /* Post content styles */
     .text{
       padding: 0px 15px 10px 15px;
+      /*width: 200px;*/
+      /* Careful, this breaks the word wherever it is without a hyphen */
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      /* Adds a hyphen where the word breaks */
+      -webkit-hyphens: auto;
+      -ms-hyphens: auto;
+      -moz-hyphens: auto;
+      hyphens: auto;
+    }
+    .text a{
+      color: red;
     }
     /* Attachment styles */
     
@@ -191,7 +203,7 @@ Example:
       border-style: solid;
       border-width: 1px;
       border-color: #BDBDBD;
-      padding: 10px 0px 5px 15px;
+      padding: 7px 0px 0px 10px;
     }
     .attached_photo{
       width: 348px;
