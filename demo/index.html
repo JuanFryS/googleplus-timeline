@@ -14,15 +14,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
     <title>googleplus-timeline Demo</title>
     <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta name="google-signin-client_id" content="883874319383-bud7sq211c5t0hfrbjqb56mij3c68ujh.apps.googleusercontent.com">
     <link rel="import" href="../googleplus-timeline.html">
   </head>
   <body unresolved>
-
+    <p> Log in first to obtain your g+ timeline </p>
+    <div class="g-signin2" data-onsuccess="onSignIn"></div>
     <p>An example of <code>&lt;googleplus-timeline&gt;</code>:</p>
 
 
     <template id="Demo" is="dom-bind">  
-      <googleplus-timeline token="" language="{{language}}">
+      <googleplus-timeline token="{{token}}" language="{{language}}">
       </googleplus-timeline>
       </br></br>
       <button name="es" on-click="changeIdiom">Spanish</button>
@@ -33,6 +36,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       Demo.changeIdiom = function(event,detail) {
         Demo.language = event.target.getAttribute('name');
       }
+
+      function onSignIn(googleUser) {
+        // The ID token you need to pass to your backend:
+        var id_token = googleUser.hg.access_token;
+        
+        console.log(googleUser.hg.access_token);
+        // We set the access token obtained
+        Demo.token = id_token;
+      };
+
     </script>
   </body>
 </html>
