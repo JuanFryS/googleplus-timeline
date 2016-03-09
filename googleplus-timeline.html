@@ -769,8 +769,10 @@ Example:
         var actual_tmp = new Date();
         this.page_timestamp = actual_tmp.getTime() - this.millis_range_timestamp;
         //We set the headers for the Google API requests
-        this.$.requestFollowing.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
-        this.$.requestPosts.setAttribute("headers", '{"Authorization":"Bearer '+ this.token + '"}');
+        headers = {"Authorization": "Bearer " + this.token,
+                  "Timing-Allow-origin": "*"};
+        this.$.requestFollowing.setAttribute("headers", JSON.stringify(headers));
+        this.$.requestPosts.setAttribute("headers", JSON.stringify(headers));
         this.$.requestFollowing.generateRequest();
         }
     },
