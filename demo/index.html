@@ -28,24 +28,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <googleplus-timeline token="{{token}}" language="{{language}}">
       </googleplus-timeline>
       </br></br>
-      <button name="es" on-click="changeIdiom">Spanish</button>
-      <button name="en" on-click="changeIdiom">English</button>
-    </template>
-    <script>
-      Demo.language = "es";
-      Demo.changeIdiom = function(event,detail) {
-        Demo.language = event.target.getAttribute('name');
-      }
+  <button name="es" on-click="changeIdiom">Spanish</button>
+  <button name="en" on-click="changeIdiom">English</button>
+  </template>
+<script>
+  Demo.language = "es";
+  Demo.changeIdiom = function(event,detail) {
+    Demo.language = event.target.getAttribute('name');
+  }
 
-      function onSignIn(googleUser) {
-        // The ID token you need to pass to your backend:
-        var id_token = googleUser.hg.access_token;
-        
-        console.log(googleUser.hg.access_token);
-        // We set the access token obtained
-        Demo.token = id_token;
-      };
+  function onSignIn(googleUser) {
+    // The ID token you need to pass to your backend:
+    var id_token = googleUser.hg.access_token;
 
-    </script>
-  </body>
+    console.log(googleUser.hg.access_token);
+    // We set the access token obtained
+    Demo.token = id_token;
+  };
+
+</script>
+</body>
 </html>
