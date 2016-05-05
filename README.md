@@ -1,4 +1,4 @@
-# googleplus-timeline
+# googleplus-timeline [![Build Status](https://travis-ci.org/JuanFryS/googleplus-timeline.svg?branch=master)](https://travis-ci.org/JuanFryS/googleplus-timeline)
 
 [Polymer](https://www.polymer-project.org/1.0/) Web Component that obtains Google+ feed for an user.
 
