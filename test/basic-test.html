@@ -44,7 +44,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             done();
           });
           it("adds 'me' to 'user_followings'", function(done){
-            var events; var espia = sinon.spy(myEl, 'push');
+            var event; var espia = sinon.spy(myEl, 'push');
             var detail = {
               "response" : {
                 "items" : {
